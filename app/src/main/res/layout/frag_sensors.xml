@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SensorControler">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Server Url"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server URL"
+                android:inputType="textUri"
+                android:text="http://192.168.1.224:5000/mvr/sensors"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Server IP"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/serverIpText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server IP"
+                android:inputType="textUri"
+                android:text="192.168.0.17"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rate"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/freqText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Collect rate"
+                android:inputType="number"
+                android:text="1000"
+                tools:ignore="HardcodedText" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                tools:ignore="PxUsage" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Proximity"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/proxRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Send rate"
+                android:inputType="number"
+                android:text="10"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextProx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server URL path"
+                android:inputType="text"
+                android:text="proximity/dev1"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_prox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextProx2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Port"
+                android:inputType="number"
+                android:text="3004"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_prox2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/fileNameTextProx"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="File name"
+                android:inputType="text"
+                android:text="proximity"
+                tools:ignore="HardcodedText" />
+
+            <ToggleButton
+                android:id="@+id/tb_prox3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Start recording"
+                android:textOn="Stop recording"
+                tools:ignore="HardcodedText" />
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                tools:ignore="PxUsage" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Accelometer"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/acceRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Send rate"
+                android:inputType="number"
+                android:text="100"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextAcce"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server URL path"
+                android:inputType="text"
+                android:text="accelerometer/dev1"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_acce"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextAcce2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Port"
+                android:inputType="number"
+                android:text="3005"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_acce2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/fileNameTextAcce"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="File name"
+                android:inputType="text"
+                android:text="accelerometer"
+                tools:ignore="HardcodedText" />
+
+            <ToggleButton
+                android:id="@+id/tb_acce3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Start recording"
+                android:textOn="Stop recording"
+                tools:ignore="HardcodedText" />
+
+            <View
+                android:id="@+id/view2"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                tools:ignore="PxUsage" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gyroscope"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/gyroRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Send rate"
+                android:inputType="number"
+                android:text="100"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextGyro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server URL path"
+                android:inputType="text"
+                android:text="gyroscope/dev1"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_gyro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextGyro2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Port"
+                android:inputType="number"
+                android:text="3006"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_gyro2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/fileNameTextGyro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="File name"
+                android:inputType="text"
+                android:text="gyroscope"
+                tools:ignore="HardcodedText" />
+
+            <ToggleButton
+                android:id="@+id/tb_gyro3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Start recording"
+                android:textOn="Stop recording"
+                tools:ignore="HardcodedText" />
+
+            <View
+                android:id="@+id/view3"
+                android:layout_width="match_parent"
+                android:layout_height="100px"
+                tools:ignore="PxUsage" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Light"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/lightRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Send rate"
+                android:inputType="number"
+                android:text="10"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextLight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Server URL path"
+                android:inputType="text"
+                android:text="light/dev1"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/urlTextLight2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Port"
+                android:inputType="number"
+                android:text="3007"
+                tools:ignore="HardcodedText,TextFields" />
+
+            <ToggleButton
+                android:id="@+id/tb_light2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Send"
+                android:textOn="Stop"
+                tools:ignore="HardcodedText" />
+
+            <EditText
+                android:id="@+id/fileNameTextLight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="File name"
+                android:inputType="text"
+                android:text="light"
+                tools:ignore="HardcodedText" />
+
+            <ToggleButton
+                android:id="@+id/tb_light3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ToggleButton"
+                android:textOff="Start recording"
+                android:textOn="Stop recording"
+                tools:ignore="HardcodedText" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>
