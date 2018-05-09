@@ -1,7 +1,8 @@
 package org.example.klemen.sensorandroid
 
+@Suppress("unused", "CanBeVal", "MemberVisibilityCanBePrivate", "LiftReturnOrAssignment")
 /**
- * Created by klemen on 16.12.2017.
+ * Created by klemen on 16.12.2018.
  */
 class Queue<T>(list: MutableList<T>){
 
@@ -32,9 +33,7 @@ class Queue<T>(list: MutableList<T>){
 	fun toArray(): Array<out Any>? {
 		var a = ArrayList<T>(count())
 		var i = 0
-		while (!items.isEmpty()) {
-			a[i] = dequeue()!!
-		}
+		while (!items.isEmpty()) a[i] = dequeue()!!
 		return a.toArray()
 	}
 }

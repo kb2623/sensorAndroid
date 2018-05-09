@@ -127,7 +127,7 @@ class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void
 	}
 
 	override fun address(): String {
-		return ipAddress + ":" + port
+		return "$ipAddress:$port"
 	}
 
 	override fun copy(): SendTask<Void, Void> {
