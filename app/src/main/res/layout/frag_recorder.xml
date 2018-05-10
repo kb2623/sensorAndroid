@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="number"
-            android:text="sample reate" />
+            tools:text="sample reate" />
 
         <EditText
             android:id="@+id/et_fileName"
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="file name" />
+            tools:text="file name" />
 
         <EditText
             android:id="@+id/et_channels"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="number"
-            android:text="channels" />
+            tools:text="channels" />
 
         <EditText
             android:id="@+id/editText2"
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Name" />
+            tools:text="Name" />
 
         <TextView
             android:id="@+id/tw_time"

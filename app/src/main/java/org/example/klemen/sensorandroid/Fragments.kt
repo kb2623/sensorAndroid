@@ -4,7 +4,6 @@ package org.example.klemen.sensorandroid
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -13,17 +12,12 @@ import android.media.MediaRecorder
 import android.net.LocalServerSocket
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
-import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.TimePicker
-import android.widget.ToggleButton
+import android.widget.*
 import kotlinx.android.synthetic.main.frag_main.view.*
 import java.net.URL
 
@@ -54,23 +48,6 @@ class FragmentPlaceholder : Fragment() {
 			fragment.arguments = args
 			return fragment
 		}
-	}
-}
-
-class FragmentTimePicker : DialogFragment(), TimePickerDialog.OnTimeSetListener {
-
-	@SuppressLint("NewApi")
-	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-		super.onCreate(savedInstanceState)
-		val c = Calendar.getInstance()
-		val hour = c.get(Calendar.HOUR_OF_DAY)
-		val minute = c.get(Calendar.MINUTE)
-		return TimePickerDialog(activity, this, hour, minute, DateFormat.is24HourFormat(activity))
-	}
-
-	override fun onTimeSet(p0: TimePicker?, p1: Int, p2: Int) {
-		val tw = activity!!.findViewById<TextView>(R.id.tw_time)
-		tw.text = "%d:%d".format(p1, p2)
 	}
 }
 
@@ -365,6 +342,7 @@ class FragmentRecorder : Fragment() {
 	private lateinit var data_channels: EditText
 	private lateinit var tb_record: ToggleButton
 
+	@SuppressLint("NewApi")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		val v = inflater.inflate(R.layout.frag_recorder, container, false)
 		if (!canRecord) return v
@@ -375,6 +353,15 @@ class FragmentRecorder : Fragment() {
 		data_fileName = v.findViewById(R.id.et_fileName)
 		data_channels = v.findViewById(R.id.et_channels)
 		tb_record = v.findViewById(R.id.tb_record)
+		val btn_setTime = v.findViewById<Button>(R.id.btn_setTime)
+
+		btn_setTime.setOnClickListener({
+			val cal = Calendar.getInstance()
+			val tpd = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener({timePicker, a, b ->
+				// TODO na prvo mesto postavi vrednosti izbrane ure
+			}), cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), true)
+			tpd.show()
+		})
 
 		// FIXME Popravi kodo
 		tb_record.setOnClickListener({
@@ -392,6 +379,7 @@ class FragmentRecorder : Fragment() {
 
 		return v
 	}
+
 
 	private fun makeRecorder(): MediaRecorder {
 		val mediaRecorder = MediaRecorder()
