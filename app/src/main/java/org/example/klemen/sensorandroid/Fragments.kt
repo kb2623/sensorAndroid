@@ -1,16 +1,78 @@
+@file:Suppress("unused")
+
 package org.example.klemen.sensorandroid
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.app.TimePickerDialog
+import android.content.pm.PackageManager
 import android.hardware.Sensor
+import android.icu.util.Calendar
+import android.media.MediaRecorder
+import android.net.LocalServerSocket
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
+import android.text.format.DateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.ToggleButton
+import kotlinx.android.synthetic.main.frag_main.view.*
 import java.net.URL
+
+@Suppress("unused")
+class FragmentPlaceholder : Fragment() {
+
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		val rootView = inflater.inflate(R.layout.frag_main, container, false)
+		rootView.section_label.text = getString(R.string.section_format, arguments?.getInt(ARG_SECTION_NUMBER))
+		return rootView
+	}
+
+	companion object {
+		/**
+		 * The fragment argument representing the section number for this
+		 * fragment.
+		 */
+		private const val ARG_SECTION_NUMBER = "section_number"
+
+		/**
+		 * Returns a new instance of this fragment for the given section
+		 * number.
+		 */
+		fun newInstance(sectionNumber: Int): FragmentPlaceholder {
+			val fragment = FragmentPlaceholder()
+			val args = Bundle()
+			args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+			fragment.arguments = args
+			return fragment
+		}
+	}
+}
+
+class FragmentTimePicker : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+
+	@SuppressLint("NewApi")
+	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+		super.onCreate(savedInstanceState)
+		val c = Calendar.getInstance()
+		val hour = c.get(Calendar.HOUR_OF_DAY)
+		val minute = c.get(Calendar.MINUTE)
+		return TimePickerDialog(activity, this, hour, minute, DateFormat.is24HourFormat(activity))
+	}
+
+	override fun onTimeSet(p0: TimePicker?, p1: Int, p2: Int) {
+		val tw = activity!!.findViewById<TextView>(R.id.tw_time)
+		tw.text = "%d:%d".format(p1, p2)
+	}
+}
 
 @Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PrivatePropertyName", "LocalVariableName")
 class FragmentSensors : Fragment() {
@@ -265,4 +327,87 @@ class FragmentSensors : Fragment() {
 		return v
 	}
 
+}
+@Suppress("CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName")
+class FragmentRecorder : Fragment() {
+
+	companion object Static {
+		const val LOG_TAG = "FragmentRecorder"
+		const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+		const val BUFFER_SIZE = 2048
+	}
+
+	private var canRecord = false
+	private var audio_data: LocalServerSocket? = null
+	private var rec: Record? = null
+
+	class Record : MediaRecorder() {
+
+		var recording = false
+
+		fun startRecording() {
+			if (recording) return
+			prepare()
+			start()
+			recording = true
+		}
+
+		fun stopRecording() {
+			if (!recording) return
+			stop()
+			release()
+			recording = false
+		}
+	}
+
+	private lateinit var data_sampleRate: EditText
+	private lateinit var data_fileName: EditText
+	private lateinit var data_channels: EditText
+	private lateinit var tb_record: ToggleButton
+
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		val v = inflater.inflate(R.layout.frag_recorder, container, false)
+		if (!canRecord) return v
+
+		ActivityCompat.requestPermissions(this.activity!!, Manifest.permission.RECORD_AUDIO as Array<out String>, REQUEST_RECORD_AUDIO_PERMISSION)
+
+		data_sampleRate = v.findViewById(R.id.et_sampleRate)
+		data_fileName = v.findViewById(R.id.et_fileName)
+		data_channels = v.findViewById(R.id.et_channels)
+		tb_record = v.findViewById(R.id.tb_record)
+
+		// FIXME Popravi kodo
+		tb_record.setOnClickListener({
+			if (tb_record.isChecked) {
+				rec!!.stopRecording()
+			} else {
+				audio_data = LocalServerSocket("audio_data")
+				rec = Record()
+				rec!!.setAudioChannels(data_channels.text as Int)
+				rec!!.setAudioSamplingRate(data_sampleRate.text as Int)
+				rec!!.setOutputFile(data_fileName.text as String)
+				rec!!.setOutputFile(audio_data!!.fileDescriptor)
+			}
+		})
+
+		return v
+	}
+
+	private fun makeRecorder(): MediaRecorder {
+		val mediaRecorder = MediaRecorder()
+		mediaRecorder.setAudioSamplingRate(data_sampleRate.text as Int)
+		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+		mediaRecorder.setAudioChannels(2)
+
+		return mediaRecorder
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		when(requestCode) {
+			REQUEST_RECORD_AUDIO_PERMISSION -> canRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED
+		}
+		if (!canRecord) Log.d(LOG_TAG, "CAN NOT read form audio device on your machine")
+		else Log.d(LOG_TAG, "CAN read form audio device on your machine")
+	}
 }
