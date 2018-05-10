@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
+import android.net.LocalServerSocket
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
@@ -21,26 +22,28 @@ class FragmentRecorder : Fragment() {
 	companion object Static {
 		val LOG_TAG = "FragmentRecorder"
 		val REQUEST_RECORD_AUDIO_PERMISSION = 200
+		val BUFFER_SIZE = 2048
 	}
 
 	private var canRecord = false
+	private var audio_data: LocalServerSocket? = null
 	private var rec: Record? = null
 
-	class Record(var nFileName: String, var mRecorder: MediaRecorder) {
+	class Record : MediaRecorder() {
 
 		var recording = false
 
 		fun startRecording() {
 			if (recording) return
-			mRecorder.prepare()
-			mRecorder.start()
+			prepare()
+			start()
 			recording = true
 		}
 
 		fun stopRecording() {
 			if (!recording) return
-			mRecorder.stop()
-			mRecorder.release()
+			stop()
+			release()
 			recording = false
 		}
 	}
@@ -61,8 +64,18 @@ class FragmentRecorder : Fragment() {
 		data_channels = v.findViewById(R.id.et_channels)
 		tb_record = v.findViewById(R.id.tb_record)
 
+		// FIXME Popravi kodo
 		tb_record.setOnClickListener({
-			// TODO
+			if (tb_record.isChecked) {
+				rec!!.stopRecording()
+			} else {
+				audio_data = LocalServerSocket("audio_data")
+				rec = Record()
+				rec!!.setAudioChannels(data_channels.text as Int)
+				rec!!.setAudioSamplingRate(data_sampleRate.text as Int)
+				rec!!.setOutputFile(data_fileName.text as String)
+				rec!!.setOutputFile(audio_data!!.fileDescriptor)
+			}
 		})
 
 		return v
