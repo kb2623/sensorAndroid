@@ -4,54 +4,55 @@ package org.example.klemen.sensorandroid
 
 import android.os.SystemClock
 import android.util.Log
-import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import kotlin.experimental.and
 
-@Suppress("NAME_SHADOWING")
+@Suppress("NAME_SHADOWING", "unused")
 class SntpClient {
 
 	@Suppress("NO_REFLECTION_IN_CLASS_PATH")
 	companion object {
-		public final val RESPONSE_INDEX_ORIGINATE_TIME = 0
-		public final val RESPONSE_INDEX_RECEIVE_TIME = 1
-		public final val RESPONSE_INDEX_TRANSMIT_TIME = 2
-		public final val RESPONSE_INDEX_RESPONSE_TIME = 3
-		public final val RESPONSE_INDEX_ROOT_DELAY = 4
-		public final val RESPONSE_INDEX_DISPERSION = 5
-		public final val RESPONSE_INDEX_STRATUM = 6
-		public final val RESPONSE_INDEX_RESPONSE_TICKS = 7
-		public final val RESPONSE_INDEX_SIZE = 8
+		const val RESPONSE_INDEX_ORIGINATE_TIME = 0
+		const val RESPONSE_INDEX_RECEIVE_TIME = 1
+		const val RESPONSE_INDEX_TRANSMIT_TIME = 2
+		const val RESPONSE_INDEX_RESPONSE_TIME = 3
+		const val RESPONSE_INDEX_ROOT_DELAY = 4
+		const val RESPONSE_INDEX_DISPERSION = 5
+		const val RESPONSE_INDEX_STRATUM = 6
+		const val RESPONSE_INDEX_RESPONSE_TICKS = 7
+		const val RESPONSE_INDEX_SIZE = 8
 
-		final val TAG = SntpClient::class.simpleName
+		val TAG = SntpClient::class.simpleName
 
-		final val NTP_PORT = 123
-		final val NTP_MODE = 3
-		final val NTP_VERSION = 3
-		final val NTP_PACKET_SIZE = 48
+		const val NTP_PORT = 123
+		const val NTP_MODE = 3
+		const val NTP_VERSION = 3
+		const val NTP_PACKET_SIZE = 48
 
-		final val INDEX_VERSION = 0
-		final val INDEX_ROOT_DELAY = 4
-		final val INDEX_ROOT_DISPERSION = 8
-		final val INDEX_ORIGINATE_TIME = 24
-		final val INDEX_RECEIVE_TIME = 32
-		final val INDEX_TRANSMIT_TIME = 40
+		const val INDEX_VERSION = 0
+		const val INDEX_ROOT_DELAY = 4
+		const val INDEX_ROOT_DISPERSION = 8
+		const val INDEX_ORIGINATE_TIME = 24
+		const val INDEX_RECEIVE_TIME = 32
+		const val INDEX_TRANSMIT_TIME = 40
 		// 70 years plus 17 leap days
-		private final val OFFSET_1900_TO_1970 = ((365L * 70L) + 17L) * 24L * 60L * 60L
+		private const val OFFSET_1900_TO_1970 = ((365L * 70L) + 17L) * 24L * 60L * 60L
+
 		/**
 		 * See δ :
 		 * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
 		 */
-		public fun getRoundTripDelay(response: Array<Long>): Long {
+		fun getRoundTripDelay(response: Array<Long>): Long {
 			return (response[RESPONSE_INDEX_RESPONSE_TIME] - response[RESPONSE_INDEX_ORIGINATE_TIME]) - (response[RESPONSE_INDEX_TRANSMIT_TIME] - response[RESPONSE_INDEX_RECEIVE_TIME])
 		}
+
 		/**
 		 * See θ :
 		 * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
 		 */
-		public fun getClockOffset(response: Array<Long>): Long {
+		fun getClockOffset(response: Array<Long>): Long {
 			return ((response[RESPONSE_INDEX_RECEIVE_TIME] - response[RESPONSE_INDEX_ORIGINATE_TIME]) + (response[RESPONSE_INDEX_TRANSMIT_TIME] - response[RESPONSE_INDEX_RESPONSE_TIME])) / 2
 		}
 	}
@@ -71,20 +72,20 @@ class SntpClient {
 			var buffer = Array<Byte>(NTP_PACKET_SIZE, { _ -> 0})
 			val address = InetAddress.getByName(ntpHost)
 			val request = DatagramPacket(buffer.toByteArray(), buffer.size, address, NTP_PORT)
-			writeVersion(buffer);
+			writeVersion(buffer)
 			// -----------------------------------------------------------------------------------
 			// get current time and write it to the request packet
 			val requestTime = System.currentTimeMillis()
 			val requestTicks = SystemClock.elapsedRealtime()
-			writeTimeStamp(buffer, INDEX_TRANSMIT_TIME, requestTime);
+			writeTimeStamp(buffer, INDEX_TRANSMIT_TIME, requestTime)
 			val socket = DatagramSocket()
-			socket.setSoTimeout(timeoutInMillis)
+			socket.soTimeout = timeoutInMillis
 			socket.send(request)
 			// -----------------------------------------------------------------------------------
 			// read the response
 			var t = Array<Long>(RESPONSE_INDEX_SIZE, { _ -> 0})
 			val response = DatagramPacket(buffer.toByteArray(), buffer.size)
-			socket.receive(response);
+			socket.receive(response)
 			val responseTicks = SystemClock.elapsedRealtime()
 			t[RESPONSE_INDEX_RESPONSE_TICKS] = responseTicks
 			// -----------------------------------------------------------------------------------
@@ -106,19 +107,19 @@ class SntpClient {
 			if (rootDelay > rootDelayMax) {
 				throw InvalidNtpServerResponseException("Invalid response from NTP server. %s violation. %f [actual] > %f [expected]", "root_delay", rootDelay.toFloat(), rootDelayMax)
 			}
-			t[RESPONSE_INDEX_DISPERSION] = read(buffer, INDEX_ROOT_DISPERSION);
+			t[RESPONSE_INDEX_DISPERSION] = read(buffer, INDEX_ROOT_DISPERSION)
 			val rootDispersion = doubleMillis(t[RESPONSE_INDEX_DISPERSION])
 			if (rootDispersion > rootDispersionMax) {
 				throw InvalidNtpServerResponseException("Invalid response from NTP server. %s violation. %f [actual] > %f [expected]", "root_dispersion", rootDispersion.toFloat(), rootDispersionMax)
 			}
 			val mode = buffer[0] and 0x7
 			if (mode != 4.toByte() && mode != 5.toByte()) {
-				throw InvalidNtpServerResponseException("untrusted mode value for TrueTime: " + mode)
+				throw InvalidNtpServerResponseException("untrusted mode value for TrueTime: $mode")
 			}
 			val stratum = buffer[1] and 0xff.toByte()
 			t[RESPONSE_INDEX_STRATUM] = stratum.toLong()
 			if (stratum < 1 || stratum > 15) {
-				throw InvalidNtpServerResponseException("untrusted stratum value for TrueTime: " + stratum);
+				throw InvalidNtpServerResponseException("untrusted stratum value for TrueTime: $stratum")
 			}
 			val leap =  (buffer[0].toInt() shr 6) and 0x3
 			if (leap == 3) {
@@ -130,31 +131,29 @@ class SntpClient {
 			}
 			val timeElapsedSinceRequest = Math.abs(originateTime - System.currentTimeMillis())
 			if (timeElapsedSinceRequest >= 10_000) {
-				throw InvalidNtpServerResponseException("Request was sent more than 10 seconds back " + timeElapsedSinceRequest);
+				throw InvalidNtpServerResponseException("Request was sent more than 10 seconds back $timeElapsedSinceRequest")
 			}
-			_sntpInitialized = true;
-			Log.i(TAG, "---- SNTP successful response from " + ntpHost);
+			_sntpInitialized = true
+			Log.i(TAG, "---- SNTP successful response from $ntpHost")
 			// -----------------------------------------------------------------------------------
 			// TODO:
 			cacheTrueTimeInfo(t)
 			return t
 		} catch (e: Exception) {
-			Log.d(TAG, "---- SNTP request failed for " + ntpHost)
+			Log.d(TAG, "---- SNTP request failed for $ntpHost")
 			throw e
 		} finally {
-			if (socket != null) {
-				socket.close()
-			}
+			socket!!.close()
 		}
 	}
 
 	@Synchronized
-	fun cacheTrueTimeInfo(response: Array<Long>) {
+	private fun cacheTrueTimeInfo(response: Array<Long>) {
 		_cachedSntpTime = sntpTime(response)
 		_cachedDeviceUptime = response[RESPONSE_INDEX_RESPONSE_TICKS]
 	}
 
-	fun sntpTime(response: Array<Long>): Long {
+	private fun sntpTime(response: Array<Long>): Long {
 		val clockOffset = getClockOffset(response)
 		val responseTime = response[RESPONSE_INDEX_RESPONSE_TIME]
 		return responseTime + clockOffset
@@ -260,6 +259,6 @@ class SntpClient {
 	 * @return as a double in milliseconds
 	 */
 	private fun doubleMillis(fix: Long): Double {
-		return (fix / 65.536).toDouble()
+		return fix / 65.536
 	}
 }
