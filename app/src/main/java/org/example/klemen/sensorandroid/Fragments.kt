@@ -4,14 +4,17 @@ package org.example.klemen.sensorandroid
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.app.FragmentManager
 import android.app.TimePickerDialog
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.hardware.Sensor
-import android.icu.util.Calendar
 import android.media.MediaRecorder
 import android.net.LocalServerSocket
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,18 +22,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.frag_main.view.*
+import kotlinx.android.synthetic.main.frag_recorder.*
 import java.net.URL
+import java.util.*
 
 @Suppress("unused")
 class FragmentPlaceholder : Fragment() {
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		val rootView = inflater.inflate(R.layout.frag_main, container, false)
-		rootView.section_label.text = getString(R.string.section_format, arguments?.getInt(ARG_SECTION_NUMBER))
-		return rootView
-	}
-
 	companion object {
+		const val LOG_TAG = "FragmentPlaceholder"
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -49,10 +49,48 @@ class FragmentPlaceholder : Fragment() {
 			return fragment
 		}
 	}
+
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		val rootView = inflater.inflate(R.layout.frag_main, container, false)
+		rootView.section_label.text = getString(R.string.section_format, arguments?.getInt(ARG_SECTION_NUMBER))
+		return rootView
+	}
+}
+
+class FragmentTimePicker(var time_out: TextView?) : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+
+	constructor() : this(null)
+
+	companion object {
+		const val LOG_TAG = "FragmentTimePicker"
+	}
+
+	private val cal = Calendar.getInstance()
+
+	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+		val hour = cal.get(Calendar.HOUR_OF_DAY)
+		val minute = cal.get(Calendar.MINUTE)
+		val tp = TimePickerDialog(activity, this, hour, minute, true)
+		return tp
+	}
+
+	override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+		val time_out_s = "%d:%d".format(hourOfDay, minute)
+		Toast.makeText(activity, time_out_s, Toast.LENGTH_SHORT).show()
+		time_out!!.text = time_out_s
+	}
+
+	override fun onCancel(dialog: DialogInterface?) {
+		super.onCancel(dialog)
+	}
 }
 
 @Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PrivatePropertyName", "LocalVariableName")
 class FragmentSensors : Fragment() {
+
+	companion object {
+		const val LOG_TAG = "FragmentSensors"
+	}
 
 	private var dG_acce: DataGetter? = null
 	private var dG_prox: DataGetter? = null
@@ -305,10 +343,11 @@ class FragmentSensors : Fragment() {
 	}
 
 }
-@Suppress("CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName")
+
+@Suppress("CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER")
 class FragmentRecorder : Fragment() {
 
-	companion object Static {
+	companion object {
 		const val LOG_TAG = "FragmentRecorder"
 		const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 		const val BUFFER_SIZE = 2048
@@ -340,28 +379,29 @@ class FragmentRecorder : Fragment() {
 	private lateinit var data_sampleRate: EditText
 	private lateinit var data_fileName: EditText
 	private lateinit var data_channels: EditText
+	private lateinit var data_time: TextView
+	private lateinit var btn_setTime: Button
 	private lateinit var tb_record: ToggleButton
 
 	@SuppressLint("NewApi")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
 		val v = inflater.inflate(R.layout.frag_recorder, container, false)
-		if (!canRecord) return v
 
-		ActivityCompat.requestPermissions(this.activity!!, Manifest.permission.RECORD_AUDIO as Array<out String>, REQUEST_RECORD_AUDIO_PERMISSION)
-
+		ActivityCompat.requestPermissions(this.activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+		
 		data_sampleRate = v.findViewById(R.id.et_sampleRate)
 		data_fileName = v.findViewById(R.id.et_fileName)
 		data_channels = v.findViewById(R.id.et_channels)
+		data_time = v.findViewById(R.id.data_time)
 		tb_record = v.findViewById(R.id.tb_record)
-		val btn_setTime = v.findViewById<Button>(R.id.btn_setTime)
+		btn_setTime = v.findViewById(R.id.btn_setTime)
 
-		btn_setTime.setOnClickListener({
-			val cal = Calendar.getInstance()
-			val tpd = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener({timePicker, a, b ->
-				// TODO na prvo mesto postavi vrednosti izbrane ure
-			}), cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), true)
-			tpd.show()
-		})
+		btn_setTime.setOnClickListener {
+			Log.d(LOG_TAG, "Calling time picker dialog")
+			val frag = FragmentTimePicker(data_time)
+			frag.show(fragmentManager, "Time Picker")
+		}
 
 		// FIXME Popravi kodo
 		tb_record.setOnClickListener({
@@ -379,7 +419,6 @@ class FragmentRecorder : Fragment() {
 
 		return v
 	}
-
 
 	private fun makeRecorder(): MediaRecorder {
 		val mediaRecorder = MediaRecorder()
