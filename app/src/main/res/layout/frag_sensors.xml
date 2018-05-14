@@ -15,15 +15,8 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 
-			<TextView
-				android:id="@+id/textView"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="Server Url"
-				tools:ignore="HardcodedText" />
-
 			<EditText
-				android:id="@+id/urlText"
+				android:id="@+id/fsenEtUrl"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -32,15 +25,8 @@
 				android:text="http://192.168.1.224:5000/mvr/sensors"
 				tools:ignore="HardcodedText" />
 
-			<TextView
-				android:id="@+id/textView7"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="Server IP"
-				tools:ignore="HardcodedText" />
-
 			<EditText
-				android:id="@+id/serverIpText"
+				android:id="@+id/fsenEtServerIp"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -49,19 +35,12 @@
 				android:text="192.168.0.17"
 				tools:ignore="HardcodedText" />
 
-			<TextView
-				android:id="@+id/textView6"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="Rate"
-				tools:ignore="HardcodedText" />
-
 			<EditText
-				android:id="@+id/freqText"
+				android:id="@+id/fsenEtFreqSr"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
-				android:hint="Collect rate"
+				android:hint="Samplerate"
 				android:inputType="number"
 				android:text="1000"
 				tools:ignore="HardcodedText" />
@@ -79,7 +58,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/proxRate"
+				android:id="@+id/fsenEtProxRate"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -89,7 +68,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextProx"
+				android:id="@+id/fsenEtProxUrl"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -99,7 +78,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_prox"
+				android:id="@+id/fsenTbtnProxUrlSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -109,7 +88,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextProx2"
+				android:id="@+id/fsenEtProxPort"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -119,7 +98,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_prox2"
+				android:id="@+id/fsenTbtnProxPortSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -129,7 +108,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/fileNameTextProx"
+				android:id="@+id/fsenEtProxFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -139,7 +118,7 @@
 				tools:ignore="HardcodedText" />
 
 			<ToggleButton
-				android:id="@+id/tb_prox3"
+				android:id="@+id/fsenTbtnProxToFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -162,7 +141,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/acceRate"
+				android:id="@+id/fsenEtAcceRate"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -172,7 +151,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextAcce"
+				android:id="@+id/fsenEtAcceUrl"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -182,7 +161,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_acce"
+				android:id="@+id/fsenTbtnAcceUrlSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -192,7 +171,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextAcce2"
+				android:id="@+id/fsenEtAccePort"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -202,7 +181,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_acce2"
+				android:id="@+id/fsenTbtnAccePortSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -212,7 +191,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/fileNameTextAcce"
+				android:id="@+id/fsenEtAcceFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -222,7 +201,7 @@
 				tools:ignore="HardcodedText" />
 
 			<ToggleButton
-				android:id="@+id/tb_acce3"
+				android:id="@+id/fsenTbtnAcceToFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -245,7 +224,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/gyroRate"
+				android:id="@+id/fsenEtGyroRate"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -255,7 +234,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextGyro"
+				android:id="@+id/fsenEtGyroUrl"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -265,7 +244,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_gyro"
+				android:id="@+id/fsenTbtnGyroUrlSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -275,7 +254,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextGyro2"
+				android:id="@+id/fsenEtGyroPort"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -285,7 +264,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_gyro2"
+				android:id="@+id/fsenTbtnGyroPortSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -295,7 +274,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/fileNameTextGyro"
+				android:id="@+id/fsenEtGyroFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -305,7 +284,7 @@
 				tools:ignore="HardcodedText" />
 
 			<ToggleButton
-				android:id="@+id/tb_gyro3"
+				android:id="@+id/fsenTbtnGyroToFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -328,7 +307,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/lightRate"
+				android:id="@+id/fsenEtLightRate"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -338,7 +317,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextLight"
+				android:id="@+id/fsenEtLightUrl"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -348,7 +327,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_light"
+				android:id="@+id/fsenTbtnLightUrlSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -358,7 +337,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/urlTextLight2"
+				android:id="@+id/fsenEtLightPort"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -368,7 +347,7 @@
 				tools:ignore="HardcodedText,TextFields" />
 
 			<ToggleButton
-				android:id="@+id/tb_light2"
+				android:id="@+id/fsenTbtnLightPortSend"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"
@@ -378,7 +357,7 @@
 				tools:ignore="HardcodedText" />
 
 			<EditText
-				android:id="@+id/fileNameTextLight"
+				android:id="@+id/fsenEtLightFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
@@ -388,7 +367,7 @@
 				tools:ignore="HardcodedText" />
 
 			<ToggleButton
-				android:id="@+id/tb_light3"
+				android:id="@+id/fsenTbtnLightToFile"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:checked="false"

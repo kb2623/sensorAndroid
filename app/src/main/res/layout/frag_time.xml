@@ -5,7 +5,8 @@
 	android:id="@+id/constraintLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".FragmentRecorder">
+	tools:context=".FragmentTimeSync">
+
 
 	<ScrollView
 		android:layout_width="match_parent"
@@ -14,37 +15,20 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:gravity="center"
 			android:orientation="vertical">
 
-			<EditText
-				android:id="@+id/frecEtSampleRate"
+			<TextView
+				android:id="@+id/textView8"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:ems="10"
-				android:hint="sample reate"
-				android:inputType="number" />
-
-			<EditText
-				android:id="@+id/frecEtFileName"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:ems="10"
-				android:hint="file name"
-				android:inputType="textPersonName" />
-
-			<EditText
-				android:id="@+id/frecEtChannels"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:ems="10"
-				android:hint="channels"
-				android:inputType="number" />
+				android:text="Phone Time" />
 
 			<TextView
-				android:id="@+id/data_time"
+				android:id="@+id/ftimEtPhoneTime"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal|top"
+				android:layout_gravity="top|center_vertical|center"
 				android:layout_margin="10dp"
 				android:background="#ed306c"
 				android:gravity="center"
@@ -53,25 +37,44 @@
 				android:textSize="30sp"
 				android:textStyle="bold" />
 
+			<TextView
+				android:id="@+id/textView12"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Server Time" />
+
+			<TextView
+				android:id="@+id/ftimEtServerTime"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top|center_vertical|center"
+				android:layout_margin="10dp"
+				android:background="#ed306c"
+				android:gravity="center"
+				android:padding="15dp"
+				android:text="Select time."
+				android:textSize="30sp"
+				android:textStyle="bold" />
+
+			<EditText
+				android:id="@+id/ftimEtNTPServer"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:ems="10"
+				android:hint="NTP server"
+				android:inputType="textPersonName" />
+
 			<Button
-				android:id="@+id/frecBtnSetTime"
+				android:id="@+id/ftimBtnGetTime"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Set time" />
+				android:text="Get time" />
 
-			<Spinner
-				android:id="@+id/spinner"
+			<Button
+				android:id="@+id/ftimBtnSyncTime"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:entries="@array/audioSources" />
-
-			<ToggleButton
-				android:id="@+id/frecTbtnRecord"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="ToggleButton"
-				android:textOff="Record"
-				android:textOn="Stop" />
+				android:text="Sync time" />
 
 		</LinearLayout>
 	</ScrollView>

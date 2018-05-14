@@ -1,11 +1,10 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "DEPRECATION")
 
 package org.example.klemen.sensorandroid
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.app.FragmentManager
 import android.app.TimePickerDialog
 import android.content.DialogInterface
 import android.content.pm.PackageManager
@@ -16,6 +15,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
+import android.text.format.Time
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +23,13 @@ import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.frag_main.view.*
 import kotlinx.android.synthetic.main.frag_recorder.*
+import kotlinx.android.synthetic.main.frag_recorder.view.*
+import kotlinx.android.synthetic.main.frag_sensors.view.*
+import kotlinx.android.synthetic.main.frag_time.view.*
+import org.example.klemen.sensorandroid.ntpclient.InitTrueTime
 import java.net.URL
 import java.util.*
 
-@Suppress("unused")
 class FragmentPlaceholder : Fragment() {
 
 	companion object {
@@ -57,9 +60,13 @@ class FragmentPlaceholder : Fragment() {
 	}
 }
 
-class FragmentTimePicker(var time_out: TextView?) : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
-	constructor() : this(null)
+	private var time_out: TextView? = null
+
+	constructor(time_out: TextView) : this() {
+		this.time_out = time_out
+	}
 
 	companion object {
 		const val LOG_TAG = "FragmentTimePicker"
@@ -107,241 +114,154 @@ class FragmentSensors : Fragment() {
 	private var dG_gyro3: DataGetter? = null
 	private var dG_light3: DataGetter? = null
 
-	private lateinit var tb_prox: ToggleButton
-	private lateinit var tb_acce: ToggleButton
-	private lateinit var tb_gyro: ToggleButton
-	private lateinit var tb_light: ToggleButton
-
-	private lateinit var tb_prox2: ToggleButton
-	private lateinit var tb_acce2: ToggleButton
-	private lateinit var tb_gyro2: ToggleButton
-	private lateinit var tb_light2: ToggleButton
-
-	private lateinit var tb_prox3: ToggleButton
-	private lateinit var tb_acce3: ToggleButton
-	private lateinit var tb_gyro3: ToggleButton
-	private lateinit var tb_light3: ToggleButton
-
+	private lateinit var uic: View
 
 	@SuppressLint("WrongViewCast")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		val v = inflater.inflate(R.layout.frag_sensors, container, false)
-
-		tb_prox = v.findViewById(R.id.tb_prox)
-		tb_acce = v.findViewById(R.id.tb_acce)
-		tb_gyro = v.findViewById(R.id.tb_gyro)
-		tb_light = v.findViewById(R.id.tb_light)
-
-		tb_prox2 = v.findViewById(R.id.tb_prox2)
-		tb_acce2 = v.findViewById(R.id.tb_acce2)
-		tb_gyro2 = v.findViewById(R.id.tb_gyro2)
-		tb_light2 = v.findViewById(R.id.tb_light2)
-
-		tb_prox3 = v.findViewById(R.id.tb_prox3)
-		tb_acce3 = v.findViewById(R.id.tb_acce3)
-		tb_gyro3 = v.findViewById(R.id.tb_gyro3)
-		tb_light3 = v.findViewById(R.id.tb_light3)
-
-		tb_prox.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val urlText = v.findViewById<EditText>(R.id.urlText).text.toString()
-			val proxRate = v.findViewById<TextView>(R.id.proxRate).text.toString().toInt()
-			val urlText_prox = v.findViewById<EditText>(R.id.urlTextProx).text.toString()
+		val uic = inflater.inflate(R.layout.frag_sensors, container, false)
+		uic.fsenTbtnProxUrlSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val urlText = uic.fsenEtUrl.text.toString()
+			val proxRate = uic.fsenEtProxRate.text.toString().toInt()
+			val urlText_prox = uic.fsenEtProxUrl.text.toString()
 			val address = "$urlText/$urlText_prox"
 			if (dG_prox == null || dG_prox!!.st.address() != address) {
 				val st_prox = SendTask_JSON_HTTP(URL(address), arrayOf("cm")) as SendTask<Void, Void>
 				dG_prox = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
 			}
-			if (tb_prox.isChecked) {
-				dG_prox!!.start(freq)
-			} else {
-				dG_prox!!.stop()
-			}
-		})
-
-		tb_acce.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val urlText = v.findViewById<EditText>(R.id.urlText).text.toString()
-			val urlText_acce = v.findViewById<EditText>(R.id.urlTextAcce).text.toString()
-			val acceRate = v.findViewById<TextView>(R.id.acceRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_prox!!, uic.fsenTbtnProxUrlSend)
+		}
+		uic.fsenTbtnAcceUrlSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val urlText = uic.fsenEtUrl.text.toString()
+			val urlText_acce = uic.fsenEtAcceUrl.text.toString()
+			val acceRate = uic.fsenEtAcceRate.text.toString().toInt()
 			val address = "$urlText/$urlText_acce"
 			if (dG_acce == null || dG_acce!!.st.address() != address) {
 				val st_acce = SendTask_JSON_HTTP(URL(address), arrayOf("Gx", "Gy", "Gz")) as SendTask<Void, Void>
 				dG_acce = DataGetter(this.context!!, Sensor.TYPE_ACCELEROMETER, st_acce, acceRate)
 			}
-			if (tb_acce.isChecked) {
-				dG_acce!!.start(freq)
-			} else {
-				dG_acce!!.stop()
-			}
-		})
-
-		tb_gyro.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val urlText = v.findViewById<EditText>(R.id.urlText).text.toString()
-			val urlText_gyro = v.findViewById<EditText>(R.id.urlTextGyro).text.toString()
-			val gyroRate = v.findViewById<TextView>(R.id.gyroRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_acce!!, uic.fsenTbtnAcceUrlSend)
+		}
+		uic.fsenTbtnGyroUrlSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val urlText = uic.fsenEtUrl.text.toString()
+			val urlText_gyro = uic.fsenEtGyroUrl.text.toString()
+			val gyroRate = uic.fsenEtGyroRate.text.toString().toInt()
 			val address = "$urlText/$urlText_gyro"
 			if (dG_gyro == null || dG_gyro!!.st.address() != address) {
 				val st_gyro = SendTask_JSON_HTTP(URL(address), arrayOf("x", "y", "z")) as SendTask<Void, Void>
 				dG_gyro = DataGetter(this.context!!, Sensor.TYPE_GYROSCOPE, st_gyro, gyroRate)
 			}
-			if (tb_gyro.isChecked) {
-				dG_gyro!!.start(freq)
-			} else {
-				dG_gyro!!.stop()
-			}
-		})
-
-		tb_light.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val urlText = v.findViewById<EditText>(R.id.urlText).text.toString()
-			val urlText_light = v.findViewById<EditText>(R.id.urlTextLight).text.toString()
-			val lightRate = v.findViewById<TextView>(R.id.lightRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_gyro!!, uic.fsenTbtnGyroUrlSend)
+		}
+		uic.fsenTbtnLightUrlSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val urlText = uic.fsenEtUrl.text.toString()
+			val urlText_light = uic.fsenEtLightUrl.text.toString()
+			val lightRate = uic.fsenEtLightRate.text.toString().toInt()
 			val address = "$urlText/$urlText_light"
 			if (dG_acce == null || dG_acce!!.st.address() != address) {
 				val st_light = SendTask_JSON_HTTP(URL(address), arrayOf("lux")) as SendTask<Void, Void>
 				dG_light = DataGetter(this.context!!, Sensor.TYPE_LIGHT, st_light, lightRate)
 			}
-			if (tb_light.isChecked) {
-				dG_light!!.start(freq)
-			} else {
-				dG_light!!.stop()
-			}
-		})
-
-		tb_prox2.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val serverIpText = v.findViewById<EditText>(R.id.serverIpText).text.toString()
-			val portText_prox = v.findViewById<EditText>(R.id.urlTextProx2).text.toString()
-			val proxRate = v.findViewById<TextView>(R.id.proxRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_light!!, uic.fsenTbtnLightUrlSend)
+		}
+		uic.fsenTbtnProxPortSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val serverIpText = uic.fsenEtServerIp.text.toString()
+			val portText_prox = uic.fsenEtProxPort.text.toString()
+			val proxRate = uic.fsenEtProxRate.text.toString().toInt()
 			val address = "$serverIpText:$portText_prox"
 			if (dG_prox2 == null || dG_prox2!!.st.address() != address) {
 				val st_prox = SendTask_Socket(address) as SendTask<Void, Void>
 				dG_prox2 = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
 			}
-			if (tb_prox2.isChecked) {
-				dG_prox2!!.start(freq)
-			} else {
-				dG_prox2!!.stop()
-			}
-		})
-
-		tb_acce2.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val serverIpText = v.findViewById<EditText>(R.id.serverIpText).text.toString()
-			val portText_acce = v.findViewById<EditText>(R.id.urlTextAcce2).text.toString()
-			val acceRate = v.findViewById<TextView>(R.id.acceRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_prox2!!, uic.fsenTbtnProxPortSend)
+		}
+		uic.fsenTbtnAccePortSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val serverIpText = uic.fsenEtServerIp.text.toString()
+			val portText_acce = uic.fsenEtAccePort.text.toString()
+			val acceRate = uic.fsenEtAcceRate.text.toString().toInt()
 			val address = "$serverIpText:$portText_acce"
 			if (dG_acce2 == null || dG_acce2!!.st.address() != address) {
 				val st_acce = SendTask_Socket(address) as SendTask<Void, Void>
 				dG_acce2 = DataGetter(this.context!!, Sensor.TYPE_ACCELEROMETER, st_acce, acceRate)
 			}
-			if (tb_acce2.isChecked) {
-				dG_acce2!!.start(freq)
-			} else {
-				dG_acce2!!.stop()
-			}
-		})
-
-		tb_gyro2.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val serverIpText = v.findViewById<EditText>(R.id.serverIpText).text.toString()
-			val portText_gyro = v.findViewById<EditText>(R.id.urlTextGyro2).text.toString()
-			val gyroRate = v.findViewById<TextView>(R.id.gyroRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_acce2!!, uic.fsenTbtnAccePortSend)
+		}
+		uic.fsenTbtnGyroPortSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val serverIpText = uic.fsenEtServerIp.text.toString()
+			val portText_gyro = uic.fsenEtGyroPort.text.toString()
+			val gyroRate = uic.fsenEtGyroRate.text.toString().toInt()
 			val address = "$serverIpText:$portText_gyro"
 			if (dG_gyro2 == null || dG_gyro2!!.st.address() != address) {
 				val st_gyro = SendTask_Socket(address) as SendTask<Void, Void>
 				dG_gyro2 = DataGetter(this.context!!, Sensor.TYPE_GYROSCOPE, st_gyro, gyroRate)
 			}
-			if (tb_gyro2.isChecked) {
-				dG_gyro2!!.start(freq)
-			} else {
-				dG_gyro2!!.stop()
-			}
-		})
-
-		tb_light2.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val serverIpText = v.findViewById<EditText>(R.id.serverIpText).text.toString()
-			val portText_light = v.findViewById<EditText>(R.id.urlTextLight2).text.toString()
-			val lightRate = v.findViewById<TextView>(R.id.lightRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_gyro2!!, uic.fsenTbtnGyroPortSend)
+		}
+		uic.fsenTbtnLightPortSend.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val serverIpText = uic.fsenEtServerIp.text.toString()
+			val portText_light = uic.fsenEtLightPort.text.toString()
+			val lightRate = uic.fsenEtLightRate.text.toString().toInt()
 			val address = "$serverIpText:$portText_light"
 			if (dG_light2 == null || dG_light2!!.st.address() != address) {
 				val st_light = SendTask_Socket(address) as SendTask<Void, Void>
 				dG_light2 = DataGetter(this.context!!, Sensor.TYPE_LIGHT, st_light, lightRate)
 			}
-			if (tb_light2.isChecked) {
-				dG_light2!!.start(freq)
-			} else {
-				dG_light2!!.stop()
-			}
-		})
-
-		tb_prox3.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val fileName = v.findViewById<TextView>(R.id.fileNameTextProx).text.toString()
-			val proxRate = v.findViewById<TextView>(R.id.proxRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_light2!!, uic.fsenTbtnGyroPortSend)
+		}
+		uic.fsenTbtnProxToFile.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val fileName = uic.fsenEtProxFile.text.toString()
+			val proxRate = uic.fsenEtProxRate.text.toString().toInt()
 			if (dG_prox3 == null || dG_prox3!!.st.address() != fileName) {
 				val st_prox = SendTask_File(fileName, this.context!!)
 				dG_prox3 = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
 			}
-			if (tb_prox3.isChecked) {
-				dG_prox3!!.start(freq)
-			} else {
-				dG_prox3!!.stop()
-
-			}
-		})
-
-		tb_acce3.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val fileName = v.findViewById<TextView>(R.id.fileNameTextAcce).text.toString()
-			val acceRate = v.findViewById<TextView>(R.id.gyroRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_prox3!!, uic.fsenTbtnProxToFile)
+		}
+		uic.fsenTbtnAcceToFile.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val fileName = uic.fsenEtAcceFile.text.toString()
+			val acceRate = uic.fsenEtAcceRate.text.toString().toInt()
 			if (dG_acce3 == null || dG_acce3!!.st.address() != fileName) {
 				val st_acce = SendTask_File(fileName, context)
 				dG_acce3 = DataGetter(this.context!!, Sensor.TYPE_ACCELEROMETER, st_acce, acceRate)
 			}
-			if (tb_acce3.isChecked) {
-				dG_acce3!!.start(freq)
-			} else {
-				dG_acce3!!.stop()
-			}
-		})
-
-		tb_gyro3.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val fileName = v.findViewById<TextView>(R.id.fileNameTextGyro).text.toString()
-			val gyroRate = v.findViewById<TextView>(R.id.acceRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_acce3!!, uic.fsenTbtnAcceToFile)
+		}
+		uic.fsenTbtnGyroToFile.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val fileName = uic.fsenEtGyroFile.text.toString()
+			val gyroRate = uic.fsenEtGyroRate.text.toString().toInt()
 			if (dG_gyro3 == null || dG_gyro3!!.st.address() != fileName) {
 				val st_gyro = SendTask_File(fileName, context)
-				dG_gyro3 = DataGetter(this.context!!, Sensor.TYPE_GYROSCOPE, st_gyro, gyroRate)
+				dG_gyro3 = DataGetter(context!!, Sensor.TYPE_GYROSCOPE, st_gyro, gyroRate)
 			}
-			if (tb_gyro3.isChecked) {
-				dG_gyro3!!.start(freq)
-			} else {
-				dG_gyro3!!.stop()
-			}
-		})
-
-		tb_light3.setOnClickListener({
-			val freq = v.findViewById<EditText>(R.id.freqText).text.toString().toInt()
-			val fileName = v.findViewById<TextView>(R.id.fileNameTextLight).text.toString()
-			val lightRate = v.findViewById<TextView>(R.id.lightRate).text.toString().toInt()
+			startStopDataGetter(freq, dG_gyro3!!, uic.fsenTbtnGyroToFile)
+		}
+		uic.fsenTbtnLightToFile.setOnClickListener{
+			val freq = uic.fsenEtFreqSr.text.toString().toInt()
+			val fileName = uic.fsenEtLightFile.text.toString()
+			val lightRate = uic.fsenEtLightRate.text.toString().toInt()
 			if (dG_light3 == null || dG_light3!!.st.address() != fileName) {
 				val st_light = SendTask_File(fileName, context)
-				dG_light3 = DataGetter(this.context!!, Sensor.TYPE_LIGHT, st_light, lightRate)
+				dG_light3 = DataGetter(context!!, Sensor.TYPE_LIGHT, st_light, lightRate)
 			}
-			if (tb_light3.isChecked) {
-				dG_light3!!.start(freq)
-			} else {
-				dG_light3!!.stop()
-			}
-		})
-
-		return v
+			startStopDataGetter(freq, dG_light3!!, uic.fsenTbtnLightToFile)
+		}
+		return uic
 	}
 
+	private fun startStopDataGetter(freq: Int, dg: DataGetter, btn: ToggleButton) {
+		if (btn.isChecked) dg.start(freq)
+		else dg.stop()
+	}
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER")
@@ -376,57 +296,39 @@ class FragmentRecorder : Fragment() {
 		}
 	}
 
-	private lateinit var data_sampleRate: EditText
-	private lateinit var data_fileName: EditText
-	private lateinit var data_channels: EditText
-	private lateinit var data_time: TextView
-	private lateinit var btn_setTime: Button
-	private lateinit var tb_record: ToggleButton
+	private lateinit var uic: View
 
 	@SuppressLint("NewApi")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-		val v = inflater.inflate(R.layout.frag_recorder, container, false)
-
+		val uic = inflater.inflate(R.layout.frag_recorder, container, false)
 		ActivityCompat.requestPermissions(this.activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
-		
-		data_sampleRate = v.findViewById(R.id.et_sampleRate)
-		data_fileName = v.findViewById(R.id.et_fileName)
-		data_channels = v.findViewById(R.id.et_channels)
-		data_time = v.findViewById(R.id.data_time)
-		tb_record = v.findViewById(R.id.tb_record)
-		btn_setTime = v.findViewById(R.id.btn_setTime)
-
-		btn_setTime.setOnClickListener {
+		uic.frecBtnSetTime.setOnClickListener {
 			Log.d(LOG_TAG, "Calling time picker dialog")
 			val frag = FragmentTimePicker(data_time)
 			frag.show(fragmentManager, "Time Picker")
 		}
-
-		// FIXME Popravi kodo
-		tb_record.setOnClickListener({
-			if (tb_record.isChecked) {
+		uic.frecTbtnRecord.setOnClickListener{
+			// FIXME Popravi kodo
+			if (frecTbtnRecord.isChecked) {
 				rec!!.stopRecording()
 			} else {
+				// TODO pravilno inicializiraj napravo za zajem
 				audio_data = LocalServerSocket("audio_data")
-				rec = Record()
-				rec!!.setAudioChannels(data_channels.text as Int)
-				rec!!.setAudioSamplingRate(data_sampleRate.text as Int)
-				rec!!.setOutputFile(data_fileName.text as String)
-				rec!!.setOutputFile(audio_data!!.fileDescriptor)
+				rec = makeRecorder()
 			}
-		})
-
-		return v
+		}
+		return uic
 	}
 
-	private fun makeRecorder(): MediaRecorder {
-		val mediaRecorder = MediaRecorder()
-		mediaRecorder.setAudioSamplingRate(data_sampleRate.text as Int)
-		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-		mediaRecorder.setAudioChannels(2)
-
-		return mediaRecorder
+	private fun makeRecorder(): Record {
+		// TODO read info form uic for record parameters
+		val rec = Record()
+		rec.setAudioChannels(uic.frecEtChannels.text as Int)
+		rec.setAudioSamplingRate(uic.frecEtSampleRate.text as Int)
+		rec.setOutputFile(uic.frecEtFileName.text as String)
+		rec.setOutputFile(audio_data!!.fileDescriptor)
+		rec.setAudioSource(MediaRecorder.AudioSource.MIC)
+		return rec
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -436,5 +338,22 @@ class FragmentRecorder : Fragment() {
 		}
 		if (!canRecord) Log.d(LOG_TAG, "CAN NOT read form audio device on your machine")
 		else Log.d(LOG_TAG, "CAN read form audio device on your machine")
+	}
+}
+
+class FragmentTimeSync() : Fragment() {
+
+	private lateinit var uic: View
+
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		uic = inflater.inflate(R.layout.frag_time, container, false)
+		InitTrueTime().execute(uic.ftimEtNTPServer.text.toString())
+		val cal = Calendar.getInstance()
+		uic.ftimEtPhoneTime.text = "%d:%d:%d.%d".format(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND))
+		return uic
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 	}
 }

@@ -1,18 +1,17 @@
-@file:Suppress("UNUSED_CHANGED_VALUE")
+@file:Suppress("UNUSED_CHANGED_VALUE", "NO_REFLECTION_IN_CLASS_PATH", "NAME_SHADOWING")
 
-package org.example.klemen.sensorandroid
+package org.example.klemen.sensorandroid.ntpclient
 
 import android.os.SystemClock
 import android.util.Log
+import org.example.klemen.sensorandroid.InvalidNtpServerResponseException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import kotlin.experimental.and
 
-@Suppress("NAME_SHADOWING", "unused")
 class SntpClient {
 
-	@Suppress("NO_REFLECTION_IN_CLASS_PATH")
 	companion object {
 		const val RESPONSE_INDEX_ORIGINATE_TIME = 0
 		const val RESPONSE_INDEX_RECEIVE_TIME = 1
@@ -23,14 +22,14 @@ class SntpClient {
 		const val RESPONSE_INDEX_STRATUM = 6
 		const val RESPONSE_INDEX_RESPONSE_TICKS = 7
 		const val RESPONSE_INDEX_SIZE = 8
-
+		// Log TAG
 		val TAG = SntpClient::class.simpleName
-
+		//
 		const val NTP_PORT = 123
 		const val NTP_MODE = 3
 		const val NTP_VERSION = 3
 		const val NTP_PACKET_SIZE = 48
-
+		//
 		const val INDEX_VERSION = 0
 		const val INDEX_ROOT_DELAY = 4
 		const val INDEX_ROOT_DISPERSION = 8
@@ -39,7 +38,6 @@ class SntpClient {
 		const val INDEX_TRANSMIT_TIME = 40
 		// 70 years plus 17 leap days
 		private const val OFFSET_1900_TO_1970 = ((365L * 70L) + 17L) * 24L * 60L * 60L
-
 		/**
 		 * See δ :
 		 * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
@@ -47,7 +45,6 @@ class SntpClient {
 		fun getRoundTripDelay(response: Array<Long>): Long {
 			return (response[RESPONSE_INDEX_RESPONSE_TIME] - response[RESPONSE_INDEX_ORIGINATE_TIME]) - (response[RESPONSE_INDEX_TRANSMIT_TIME] - response[RESPONSE_INDEX_RECEIVE_TIME])
 		}
-
 		/**
 		 * See θ :
 		 * https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
@@ -56,7 +53,6 @@ class SntpClient {
 			return ((response[RESPONSE_INDEX_RECEIVE_TIME] - response[RESPONSE_INDEX_ORIGINATE_TIME]) + (response[RESPONSE_INDEX_TRANSMIT_TIME] - response[RESPONSE_INDEX_RESPONSE_TIME])) / 2
 		}
 	}
-
 	private var _cachedDeviceUptime = 0L
 	private var _cachedSntpTime = 0L
 	private var _sntpInitialized = false
@@ -143,12 +139,13 @@ class SntpClient {
 			Log.d(TAG, "---- SNTP request failed for $ntpHost")
 			throw e
 		} finally {
+			// FIXME KotlinNullPointerException on something
 			socket!!.close()
 		}
 	}
 
 	@Synchronized
-	private fun cacheTrueTimeInfo(response: Array<Long>) {
+	fun cacheTrueTimeInfo(response: Array<Long>) {
 		_cachedSntpTime = sntpTime(response)
 		_cachedDeviceUptime = response[RESPONSE_INDEX_RESPONSE_TICKS]
 	}

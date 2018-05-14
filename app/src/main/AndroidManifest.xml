@@ -10,9 +10,14 @@
 	<uses-permission
 		android:name="android.permission.INTERNET" />
 	<uses-permission
-        android:name="org.ntpsync.permission.GET_TIME" />
+		android:name="android.permission.ACCESS_WIFI_STATE"/>
 	<uses-permission
-        android:name="org.ntpsync.permission.SET_TIME" />
+		android:name="org.ntpsync.permission.GET_TIME" />
+	<uses-permission
+		android:name="org.ntpsync.permission.SET_TIME" />
+
+	<!--Detect boot to invalidate TrueTime-->
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
 	<uses-feature
 		android:name="android.hardware.sensor.accelerometer" android:required="true" />
