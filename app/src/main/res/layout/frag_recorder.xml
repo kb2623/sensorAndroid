@@ -25,7 +25,8 @@
 				android:ems="10"
 				android:gravity="center"
 				android:hint="sample reate"
-				android:inputType="number" />
+				android:inputType="number"
+				android:text="44100" />
 
 			<EditText
 				android:id="@+id/frecEtFileName"
@@ -34,7 +35,8 @@
 				android:ems="10"
 				android:gravity="center"
 				android:hint="file name"
-				android:inputType="textPersonName" />
+				android:inputType="textPersonName"
+				android:text="test" />
 
 			<EditText
 				android:id="@+id/frecEtChannels"
@@ -43,10 +45,11 @@
 				android:ems="10"
 				android:gravity="center"
 				android:hint="channels"
-				android:inputType="number" />
+				android:inputType="number"
+				android:text="1" />
 
 			<TextView
-				android:id="@+id/data_time"
+				android:id="@+id/frecTwRecordTime"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal|top"

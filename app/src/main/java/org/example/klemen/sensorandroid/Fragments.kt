@@ -3,7 +3,6 @@
 package org.example.klemen.sensorandroid
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.DialogInterface
@@ -30,6 +29,7 @@ import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
 import java.net.URL
+import java.text.SimpleDateFormat
 import java.util.*
 
 class FragmentPlaceholder : Fragment() {
@@ -298,19 +298,19 @@ class FragmentRecorder : Fragment() {
 	private lateinit var uic: View
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		val uic = inflater.inflate(R.layout.frag_recorder, container, false)
+		uic = inflater.inflate(R.layout.frag_recorder, container, false)
 		ActivityCompat.requestPermissions(this.activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
 		uic.frecTbtnSetTime.setOnClickListener {
 			if (uic.frecTbtnSetTime.isChecked) {
-				val frag = FragmentTimePicker(data_time)
+				val frag = FragmentTimePicker(frecTwRecordTime)
 				frag.show(fragmentManager, "Time Picker")
 			} else {
-				data_time.text = getString(R.string.time_init_text)
+				frecTwRecordTime.text = getString(R.string.time_init_text)
 			}
 		}
 		uic.frecTbtnRecord.setOnClickListener{
 			if (uic.frecTbtnRecord.isChecked) {
-				rec = makeRecorder()
+//				rec = makeRecorder()
 				Handler().postDelayed(Runnable { rec!!.startRecording() }, timeSourceDelay())
 			} else {
 				rec!!.stopRecording()
@@ -319,11 +319,16 @@ class FragmentRecorder : Fragment() {
 		return uic
 	}
 
+	private fun getCurrTime(): Date = when (uic.frecSbTimeSource.selectedItem.toString()) {
+		resources.getStringArray(R.array.timeSources)[1] -> TrueTimeRx.now()
+		else -> Calendar.getInstance().time
+	}
+
 	private fun timeSourceDelay(): Long {
-		if (!uic.frecTbtnSetTime.isChecked) return 0
-		var delay = 100L
-		// TODO
-		return delay
+		if (!uic.frecTbtnSetTime.isChecked) return 0L
+		val cal = Calendar.getInstance()
+		val dr = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS").parse("%s %s:00.000".format(SimpleDateFormat("dd.MM.yyyy").format(cal.time), uic.frecTwRecordTime.text))
+		return dr.time - getCurrTime().time
 	}
 
 	private fun soundSource(): Int = when(uic.frecSbSoundSource.selectedItem.toString()) {
@@ -336,9 +341,10 @@ class FragmentRecorder : Fragment() {
 	private fun makeRecorder(): Record {
 		// TODO multiple sources ...
 		val r = Record()
-		r.setAudioChannels(uic.frecEtChannels.text as Int)
-		r.setAudioSamplingRate(uic.frecEtSampleRate.text as Int)
-		r.setOutputFile(uic.frecEtFileName.text as String)
+		r.setAudioChannels(uic.frecEtChannels.text.toString().toInt())
+		r.setAudioSamplingRate(uic.frecEtSampleRate.text.toString().toInt())
+		r.setOutputFile(uic.frecEtFileName.text.toString())
+		Log.d("TEST", "input source %d".format(soundSource()))
 		r.setAudioSource(soundSource())
 		return r
 	}
