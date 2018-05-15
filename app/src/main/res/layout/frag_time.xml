@@ -7,10 +7,13 @@
 	android:layout_height="match_parent"
 	tools:context=".FragmentTimeSync">
 
-
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:clipToPadding="false"
+		android:fillViewport="false"
+		tools:layout_editor_absoluteX="0dp"
+		tools:layout_editor_absoluteY="0dp">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -30,10 +33,10 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="top|center_vertical|center"
 				android:layout_margin="10dp"
-				android:background="#ed306c"
+				android:background="@color/cyan"
 				android:gravity="center"
 				android:padding="15dp"
-				android:text="Select time."
+				android:text="@string/time_init_text"
 				android:textSize="30sp"
 				android:textStyle="bold" />
 
@@ -49,10 +52,29 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="top|center_vertical|center"
 				android:layout_margin="10dp"
-				android:background="#ed306c"
+				android:background="@color/orange"
 				android:gravity="center"
 				android:padding="15dp"
-				android:text="Select time."
+				android:text="@string/time_init_text"
+				android:textSize="30sp"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/textView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/timeDiffLab" />
+
+			<TextView
+				android:id="@+id/ftimEtTimeDiff"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top|center_vertical|center"
+				android:layout_margin="10dp"
+				android:background="@color/red"
+				android:gravity="center"
+				android:padding="15dp"
+				android:text="@string/time_init_text"
 				android:textSize="30sp"
 				android:textStyle="bold" />
 
@@ -61,20 +83,16 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="NTP server"
-				android:inputType="textPersonName" />
+				android:inputType="textPersonName"
+				android:text="@string/ntp_server" />
 
 			<Button
 				android:id="@+id/ftimBtnGetTime"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="Get time" />
-
-			<Button
-				android:id="@+id/ftimBtnSyncTime"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="Sync time" />
 
 		</LinearLayout>
 	</ScrollView>

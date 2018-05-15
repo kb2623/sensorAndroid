@@ -1,4 +1,4 @@
-@file:Suppress("unused", "DEPRECATION")
+@file:Suppress("unused", "DEPRECATION", "CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER", "UNCHECKED_CAST")
 
 package org.example.klemen.sensorandroid
 
@@ -11,22 +11,24 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.media.MediaRecorder
 import android.net.LocalServerSocket
+import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
-import android.text.format.Time
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.instacart.library.truetime.TrueTimeRx
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_main.view.*
 import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
-import org.example.klemen.sensorandroid.ntpclient.InitTrueTime
 import java.net.URL
 import java.util.*
 
@@ -82,7 +84,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	}
 
 	override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
-		val time_out_s = "%d:%d".format(hourOfDay, minute)
+		val time_out_s = "%2d:%2d".format(hourOfDay, minute)
 		Toast.makeText(activity, time_out_s, Toast.LENGTH_SHORT).show()
 		time_out!!.text = time_out_s
 	}
@@ -92,7 +94,6 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	}
 }
 
-@Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS", "PrivatePropertyName", "LocalVariableName")
 class FragmentSensors : Fragment() {
 
 	companion object {
@@ -116,7 +117,6 @@ class FragmentSensors : Fragment() {
 
 	private lateinit var uic: View
 
-	@SuppressLint("WrongViewCast")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		val uic = inflater.inflate(R.layout.frag_sensors, container, false)
 		uic.fsenTbtnProxUrlSend.setOnClickListener{
@@ -264,7 +264,6 @@ class FragmentSensors : Fragment() {
 	}
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER")
 class FragmentRecorder : Fragment() {
 
 	companion object {
@@ -298,37 +297,50 @@ class FragmentRecorder : Fragment() {
 
 	private lateinit var uic: View
 
-	@SuppressLint("NewApi")
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		val uic = inflater.inflate(R.layout.frag_recorder, container, false)
 		ActivityCompat.requestPermissions(this.activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
-		uic.frecBtnSetTime.setOnClickListener {
-			Log.d(LOG_TAG, "Calling time picker dialog")
-			val frag = FragmentTimePicker(data_time)
-			frag.show(fragmentManager, "Time Picker")
+		uic.frecTbtnSetTime.setOnClickListener {
+			if (uic.frecTbtnSetTime.isChecked) {
+				val frag = FragmentTimePicker(data_time)
+				frag.show(fragmentManager, "Time Picker")
+			} else {
+				data_time.text = getString(R.string.time_init_text)
+			}
 		}
 		uic.frecTbtnRecord.setOnClickListener{
-			// FIXME Popravi kodo
-			if (frecTbtnRecord.isChecked) {
-				rec!!.stopRecording()
-			} else {
-				// TODO pravilno inicializiraj napravo za zajem
-				audio_data = LocalServerSocket("audio_data")
+			if (uic.frecTbtnRecord.isChecked) {
 				rec = makeRecorder()
+				Handler().postDelayed(Runnable { rec!!.startRecording() }, timeSourceDelay())
+			} else {
+				rec!!.stopRecording()
 			}
 		}
 		return uic
 	}
 
+	private fun timeSourceDelay(): Long {
+		if (!uic.frecTbtnSetTime.isChecked) return 0
+		var delay = 100L
+		// TODO
+		return delay
+	}
+
+	private fun soundSource(): Int = when(uic.frecSbSoundSource.selectedItem.toString()) {
+		resources.getStringArray(R.array.audioSources)[1] -> MediaRecorder.AudioSource.MIC
+		resources.getStringArray(R.array.audioSources)[2] -> MediaRecorder.AudioSource.CAMCORDER
+		resources.getStringArray(R.array.audioSources)[3] -> MediaRecorder.AudioSource.VOICE_UPLINK
+		else -> MediaRecorder.AudioSource.DEFAULT
+	}
+
 	private fun makeRecorder(): Record {
-		// TODO read info form uic for record parameters
-		val rec = Record()
-		rec.setAudioChannels(uic.frecEtChannels.text as Int)
-		rec.setAudioSamplingRate(uic.frecEtSampleRate.text as Int)
-		rec.setOutputFile(uic.frecEtFileName.text as String)
-		rec.setOutputFile(audio_data!!.fileDescriptor)
-		rec.setAudioSource(MediaRecorder.AudioSource.MIC)
-		return rec
+		// TODO multiple sources ...
+		val r = Record()
+		r.setAudioChannels(uic.frecEtChannels.text as Int)
+		r.setAudioSamplingRate(uic.frecEtSampleRate.text as Int)
+		r.setOutputFile(uic.frecEtFileName.text as String)
+		r.setAudioSource(soundSource())
+		return r
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -345,13 +357,36 @@ class FragmentTimeSync() : Fragment() {
 
 	private lateinit var uic: View
 
+	inner class InitTime(): AsyncTask<String, Int, Int>() {
+
+		override fun doInBackground(vararg params: String?): Int {
+			TrueTimeRx.build().initializeRx(if (params.size > 0) params[0] else "time.google.com").subscribeOn(Schedulers.io()).subscribe()
+			return 0
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_time, container, false)
-		InitTrueTime().execute(uic.ftimEtNTPServer.text.toString())
-		val cal = Calendar.getInstance()
-		uic.ftimEtPhoneTime.text = "%d:%d:%d.%d".format(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND))
+		InitTime().execute(uic.ftimEtNTPServer.text.toString())
+		uic.ftimBtnGetTime.setOnClickListener {
+			val cal = Calendar.getInstance()
+			val t1 = cal.time
+			val t2 = TrueTimeRx.now()
+			uic.ftimEtPhoneTime.text = getDateStr(cal)
+			cal.time = t2
+			uic.ftimEtServerTime.text = getDateStr(cal)
+			cal.time = Date(if (t1.time > t2.time) t1.time - t2.time else t2.time - t1.time)
+			uic.ftimEtTimeDiff.text = getDateStr(cal)
+		}
 		return uic
 	}
+
+	private fun getDateStr(cal: Calendar): String {
+		val a = getDateArr(cal)
+		return "%2d:%2d:%2d.%3d".format(a[0], a[1], a[2], a[3])
+	}
+
+	private fun getDateArr(cal: Calendar): Array<Int> = arrayOf<Int>(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND))
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)

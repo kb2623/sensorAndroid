@@ -8,7 +8,9 @@
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:clipToPadding="false"
+		android:fillViewport="false">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -20,6 +22,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server URL"
 				android:inputType="textUri"
 				android:text="http://192.168.1.224:5000/mvr/sensors"
@@ -30,6 +33,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server IP"
 				android:inputType="textUri"
 				android:text="192.168.0.17"
@@ -40,15 +44,11 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Samplerate"
 				android:inputType="number"
 				android:text="1000"
 				tools:ignore="HardcodedText" />
-
-			<View
-				android:layout_width="match_parent"
-				android:layout_height="100px"
-				tools:ignore="PxUsage" />
 
 			<TextView
 				android:id="@+id/textView2"
@@ -62,6 +62,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Send rate"
 				android:inputType="number"
 				android:text="10"
@@ -72,6 +73,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server URL path"
 				android:inputType="text"
 				android:text="proximity/dev1"
@@ -92,6 +94,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Port"
 				android:inputType="number"
 				android:text="3004"
@@ -112,6 +115,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="File name"
 				android:inputType="text"
 				android:text="proximity"
@@ -127,12 +131,6 @@
 				android:textOn="Stop recording"
 				tools:ignore="HardcodedText" />
 
-			<View
-				android:id="@+id/view"
-				android:layout_width="match_parent"
-				android:layout_height="100px"
-				tools:ignore="PxUsage" />
-
 			<TextView
 				android:id="@+id/textView3"
 				android:layout_width="match_parent"
@@ -145,6 +143,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Send rate"
 				android:inputType="number"
 				android:text="100"
@@ -155,6 +154,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server URL path"
 				android:inputType="text"
 				android:text="accelerometer/dev1"
@@ -175,6 +175,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Port"
 				android:inputType="number"
 				android:text="3005"
@@ -195,6 +196,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="File name"
 				android:inputType="text"
 				android:text="accelerometer"
@@ -210,12 +212,6 @@
 				android:textOn="Stop recording"
 				tools:ignore="HardcodedText" />
 
-			<View
-				android:id="@+id/view2"
-				android:layout_width="match_parent"
-				android:layout_height="100px"
-				tools:ignore="PxUsage" />
-
 			<TextView
 				android:id="@+id/textView4"
 				android:layout_width="match_parent"
@@ -228,6 +224,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Send rate"
 				android:inputType="number"
 				android:text="100"
@@ -238,6 +235,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server URL path"
 				android:inputType="text"
 				android:text="gyroscope/dev1"
@@ -258,6 +256,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Port"
 				android:inputType="number"
 				android:text="3006"
@@ -278,6 +277,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="File name"
 				android:inputType="text"
 				android:text="gyroscope"
@@ -293,12 +293,6 @@
 				android:textOn="Stop recording"
 				tools:ignore="HardcodedText" />
 
-			<View
-				android:id="@+id/view3"
-				android:layout_width="match_parent"
-				android:layout_height="100px"
-				tools:ignore="PxUsage" />
-
 			<TextView
 				android:id="@+id/textView5"
 				android:layout_width="match_parent"
@@ -311,6 +305,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Send rate"
 				android:inputType="number"
 				android:text="10"
@@ -321,6 +316,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Server URL path"
 				android:inputType="text"
 				android:text="light/dev1"
@@ -341,6 +337,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="Port"
 				android:inputType="number"
 				android:text="3007"
@@ -361,6 +358,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="File name"
 				android:inputType="text"
 				android:text="light"

@@ -9,7 +9,9 @@
 
 	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:clipToPadding="false"
+		android:fillViewport="false">
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -21,6 +23,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="sample reate"
 				android:inputType="number" />
 
@@ -29,6 +32,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="file name"
 				android:inputType="textPersonName" />
 
@@ -37,6 +41,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:ems="10"
+				android:gravity="center"
 				android:hint="channels"
 				android:inputType="number" />
 
@@ -46,24 +51,35 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_horizontal|top"
 				android:layout_margin="10dp"
-				android:background="#ed306c"
+				android:background="@color/yellow"
 				android:gravity="center"
 				android:padding="15dp"
-				android:text="Select time."
+				android:text="@string/time_init_text"
 				android:textSize="30sp"
 				android:textStyle="bold" />
 
-			<Button
-				android:id="@+id/frecBtnSetTime"
+			<Spinner
+				android:id="@+id/frecSbTimeSource"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Set time" />
+				android:entries="@array/timeSources"
+				android:gravity="center" />
+
+			<ToggleButton
+				android:id="@+id/frecTbtnSetTime"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:checked="false"
+				android:text="Set time"
+				android:textOff="@string/schudOff"
+				android:textOn="@string/schudOn" />
 
 			<Spinner
-				android:id="@+id/spinner"
+				android:id="@+id/frecSbSoundSource"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:entries="@array/audioSources" />
+				android:entries="@array/audioSources"
+				android:gravity="center" />
 
 			<ToggleButton
 				android:id="@+id/frecTbtnRecord"

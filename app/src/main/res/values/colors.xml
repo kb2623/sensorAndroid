@@ -4,4 +4,13 @@
 	<color name="colorPrimaryDark">#000000</color>
 	<color name="colorAccent">#2aa889</color>
 	<color name="background">#000000</color>
+
+	<color name="blue">#195466</color>
+	<color name="green">#2aa889</color>
+	<color name="orange">#d26937</color>
+	<color name="red">#c23127</color>
+	<color name="yellow">#edb443</color>
+	<color name="magenata">#888ca6</color>
+	<color name="violet">#4e5166</color>
+	<color name="cyan">#33859E</color>
 </resources>

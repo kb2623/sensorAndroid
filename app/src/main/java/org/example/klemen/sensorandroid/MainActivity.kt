@@ -1,5 +1,6 @@
 package org.example.klemen.sensorandroid
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TabLayout
@@ -11,7 +12,6 @@ import android.util.Log
 import android.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 
-@Suppress("RemoveExplicitTypeArguments")
 class MainActivity : AppCompatActivity() {
 	/**
 	 * The [android.support.v4.view.PagerAdapter] that will provide
@@ -26,17 +26,16 @@ class MainActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
+		setSupportActionBar(toolbar)
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
 		mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
 		// Set up the ViewPager with the sections adapter.
 		container.adapter = mSectionsPagerAdapter
-
 		container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabs))
 		tabs.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
 		fab.setOnClickListener { view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)	.setAction("Action", null).show() }
 	}
-
 
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -49,11 +48,12 @@ class MainActivity : AppCompatActivity() {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		val id = item.itemId
-		if (id == R.id.action_settings) return true
+		if (id == R.id.action_settings) {
+			startActivity(Intent(this, SettingsActivity::class.java))
+			return true
+		}
 		return super.onOptionsItemSelected(item)
 	}
-
-
 	/**
 	 * A [FragmentPagerAdapter] that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
@@ -62,13 +62,9 @@ class MainActivity : AppCompatActivity() {
 
 		private var buff = listOf<Fragment>(FragmentTimeSync(), FragmentSensors(), FragmentRecorder())
 
-		override fun getItem(position: Int): Fragment {
-			return buff[position]
-		}
+		override fun getItem(position: Int): Fragment = buff[position]
 
-		override fun getCount(): Int {
-			return buff.size
-		}
+		override fun getCount(): Int = buff.size
 	}
 }
 
