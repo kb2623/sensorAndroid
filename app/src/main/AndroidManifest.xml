@@ -5,28 +5,26 @@
 	<uses-sdk
 		android:minSdkVersion="14" />
 
-	<uses-permission
-		android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission
-		android:name="android.permission.INTERNET" />
-	<uses-permission
-		android:name="android.permission.ACCESS_WIFI_STATE"/>
-	<uses-permission
-		android:name="org.ntpsync.permission.GET_TIME" />
-	<uses-permission
-		android:name="org.ntpsync.permission.SET_TIME" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="org.ntpsync.permission.GET_TIME" />
+	<uses-permission android:name="org.ntpsync.permission.SET_TIME" />
 
 	<!--Detect boot to invalidate TrueTime-->
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-	<uses-feature
-		android:name="android.hardware.sensor.accelerometer" android:required="true" />
-	<uses-feature
-		android:name="android.hardware.sensor.gyroscope" android:required="true" />
-	<uses-feature
-		android:name="android.hardware.sensor.proximity" android:required="true" />
-	<uses-feature
-		android:name="android.hardware.sensor.light" android:required="true" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+	<uses-permission android:name="android.permission.READ_INTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE"/>
+
+	<uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
+	<uses-feature android:name="android.hardware.sensor.gyroscope" android:required="true" />
+	<uses-feature android:name="android.hardware.sensor.proximity" android:required="true" />
+	<uses-feature android:name="android.hardware.sensor.light" android:required="true" />
 
 	<application
 		android:allowBackup="true"

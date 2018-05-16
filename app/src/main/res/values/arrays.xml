@@ -6,9 +6,20 @@
 		<item>Camera mic</item>
 		<item>Bluetooth</item>
 	</string-array>
+
 	<string-array name="timeSources">
 		<item>Phone</item>
 		<item>NTP server</item>
+	</string-array>
+
+	<string-array name="audioEncoder">
+		<item>AAC_ELD</item>
+		<item>AAC</item>
+		<item>AMR_NB</item>
+		<item>AMR_WB</item>
+		<item>HE_AAC</item>
+		<item>VORBIS</item>
+		<item>Defalut</item>
 	</string-array>
 
 	<string-array name="pref_example_list_titles">
@@ -16,6 +27,7 @@
 		<item>When possible</item>
 		<item>Never</item>
 	</string-array>
+
 	<string-array name="pref_example_list_values">
 		<item>1</item>
 		<item>0</item>
@@ -30,6 +42,7 @@
 		<item>6 hours</item>
 		<item>Never</item>
 	</string-array>
+
 	<string-array name="pref_sync_frequency_values">
 		<item>15</item>
 		<item>30</item>

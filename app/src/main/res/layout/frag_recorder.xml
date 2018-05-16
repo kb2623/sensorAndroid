@@ -84,6 +84,12 @@
 				android:entries="@array/audioSources"
 				android:gravity="center" />
 
+			<Spinner
+				android:id="@+id/frecSbAudioEncoder"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:entries="@array/audioEncoder" />
+
 			<ToggleButton
 				android:id="@+id/frecTbtnRecord"
 				android:layout_width="match_parent"

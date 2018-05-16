@@ -35,7 +35,7 @@ import java.util.*
 class FragmentPlaceholder : Fragment() {
 
 	companion object {
-		const val LOG_TAG = "FragmentPlaceholder"
+		val LOG_TAG = FragmentPlaceholder::class.simpleName
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -64,15 +64,15 @@ class FragmentPlaceholder : Fragment() {
 
 class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
-	private var time_out: TextView? = null
-
 	constructor(time_out: TextView) : this() {
 		this.time_out = time_out
 	}
 
 	companion object {
-		const val LOG_TAG = "FragmentTimePicker"
+		val LOG_TAG = FragmentTimePicker::class.simpleName
 	}
+
+	private var time_out: TextView? = null
 
 	private val cal = Calendar.getInstance()
 
@@ -97,7 +97,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 class FragmentSensors : Fragment() {
 
 	companion object {
-		const val LOG_TAG = "FragmentSensors"
+		val LOG_TAG = FragmentSensors::class.simpleName
 	}
 
 	private var dG_acce: DataGetter? = null
@@ -267,7 +267,7 @@ class FragmentSensors : Fragment() {
 class FragmentRecorder : Fragment() {
 
 	companion object {
-		const val LOG_TAG = "FragmentRecorder"
+		val LOG_TAG = FragmentRecorder::class.simpleName
 		const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 		const val BUFFER_SIZE = 2048
 	}
@@ -310,7 +310,7 @@ class FragmentRecorder : Fragment() {
 		}
 		uic.frecTbtnRecord.setOnClickListener{
 			if (uic.frecTbtnRecord.isChecked) {
-//				rec = makeRecorder()
+				rec = makeRecorder()
 				Handler().postDelayed(Runnable { rec!!.startRecording() }, timeSourceDelay())
 			} else {
 				rec!!.stopRecording()
@@ -338,14 +338,24 @@ class FragmentRecorder : Fragment() {
 		else -> MediaRecorder.AudioSource.DEFAULT
 	}
 
+	private fun audioEncoder(): Int = when (uic.frecSbAudioEncoder.selectedItem.toString()) {
+		resources.getStringArray(R.array.audioEncoder)[0] -> MediaRecorder.AudioEncoder.AAC_ELD
+		resources.getStringArray(R.array.audioEncoder)[1] -> MediaRecorder.AudioEncoder.AAC
+		resources.getStringArray(R.array.audioEncoder)[2] -> MediaRecorder.AudioEncoder.AMR_NB
+		resources.getStringArray(R.array.audioEncoder)[3] -> MediaRecorder.AudioEncoder.AMR_WB
+		resources.getStringArray(R.array.audioEncoder)[4] -> MediaRecorder.AudioEncoder.HE_AAC
+		resources.getStringArray(R.array.audioEncoder)[5] -> MediaRecorder.AudioEncoder.VORBIS
+		else -> MediaRecorder.AudioEncoder.DEFAULT
+	}
+
 	private fun makeRecorder(): Record {
 		// TODO multiple sources ...
 		val r = Record()
 		r.setAudioChannels(uic.frecEtChannels.text.toString().toInt())
 		r.setAudioSamplingRate(uic.frecEtSampleRate.text.toString().toInt())
 		r.setOutputFile(uic.frecEtFileName.text.toString())
-		Log.d("TEST", "input source %d".format(soundSource()))
 		r.setAudioSource(soundSource())
+		r.setOutputFormat(audioEncoder())
 		return r
 	}
 
