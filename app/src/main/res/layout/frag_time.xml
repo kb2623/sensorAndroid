@@ -25,7 +25,8 @@
 				android:id="@+id/textView8"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Phone Time" />
+				android:text="Phone Time"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 			<TextView
 				android:id="@+id/ftimEtPhoneTime"
@@ -41,10 +42,17 @@
 				android:textStyle="bold" />
 
 			<TextView
+				android:id="@+id/textView17"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_empty" />
+
+			<TextView
 				android:id="@+id/textView12"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Server Time" />
+				android:text="Server Time"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 			<TextView
 				android:id="@+id/ftimEtServerTime"
@@ -60,10 +68,17 @@
 				android:textStyle="bold" />
 
 			<TextView
+				android:id="@+id/textView22"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_empty" />
+
+			<TextView
 				android:id="@+id/textView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/timeDiffLab" />
+				android:text="@string/timeDiffLab"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
 			<TextView
 				android:id="@+id/ftimEtTimeDiff"
@@ -78,6 +93,12 @@
 				android:textSize="30sp"
 				android:textStyle="bold" />
 
+			<TextView
+				android:id="@+id/textView23"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_empty" />
+
 			<EditText
 				android:id="@+id/ftimEtNTPServer"
 				android:layout_width="match_parent"
@@ -87,6 +108,12 @@
 				android:hint="NTP server"
 				android:inputType="textPersonName"
 				android:text="@string/ntp_server" />
+
+			<TextView
+				android:id="@+id/textView24"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_empty" />
 
 			<Button
 				android:id="@+id/ftimBtnGetTime"

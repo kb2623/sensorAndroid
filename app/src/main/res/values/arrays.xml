@@ -22,25 +22,43 @@
 		<item>Defalut</item>
 	</string-array>
 
-    <string-array name="outputFormat">
-        <item>AAC_ADTS</item>
-        <item>AMR_NB</item>
-        <item>AMR_WB</item>
-        <item>THREE_GPP</item>
-        <item>WEBM</item>
-        <item>MPEG_4</item>
-        <item>MPEG_2_TS</item>
-    </string-array>
+	<string-array name="outputFormat">
+		<item>AAC_ADTS</item>
+		<item>AMR_NB</item>
+		<item>AMR_WB</item>
+		<item>THREE_GPP</item>
+		<item>WEBM</item>
+		<item>MPEG_4</item>
+		<item>MPEG_2_TS</item>
+	</string-array>
 
-    <string-array name="fileEndingsForFormats">
-        <item>.adts</item>
-        <item>.amr</item>
-        <item>.3ga</item>
-        <item>.3gp</item>
-        <item>.webm</item>
-        <item>.mp4</item>
-        <item>.mp4</item>
-    </string-array>
+	<string-array name="fileEndingsForFormats">
+		<item>.adts</item>
+		<item>.amr</item>
+		<item>.3ga</item>
+		<item>.3gp</item>
+		<item>.webm</item>
+		<item>.m4a</item>
+		<item>.mp4</item>
+	</string-array>
+
+	<string-array name="sampleRates">
+		<item>44100</item>
+		<item>22050</item>
+		<item>11025</item>
+		<item>8000</item>
+	</string-array>
+
+	<string-array name="audioFormat">
+		<item>PCM 16 Bit</item>
+		<item>PCM 8 Bit</item>
+		<item>PCM Float</item>
+	</string-array>
+
+	<string-array name="audioChannels">
+		<item>Mono</item>
+		<item>Stereo</item>
+	</string-array>
 
 	<string-array name="pref_example_list_titles">
 		<item>Always</item>

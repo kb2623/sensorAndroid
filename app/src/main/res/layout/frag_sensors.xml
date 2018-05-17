@@ -51,10 +51,17 @@
 				tools:ignore="HardcodedText" />
 
 			<TextView
+				android:id="@+id/textView25"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_newline" />
+
+			<TextView
 				android:id="@+id/textView2"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Proximity"
+				android:text="@string/lbl_proximity"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -85,8 +92,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -106,8 +113,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -127,15 +134,22 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Start recording"
-				android:textOn="Stop recording"
+				android:textOff="@string/lbl_record_off"
+				android:textOn="@string/lbl_record_on"
 				tools:ignore="HardcodedText" />
+
+			<TextView
+				android:id="@+id/textView26"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_newline" />
 
 			<TextView
 				android:id="@+id/textView3"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Accelometer"
+				android:text="@string/lbl_accelerometer"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -166,8 +180,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -187,8 +201,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -208,15 +222,22 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Start recording"
-				android:textOn="Stop recording"
+				android:textOff="@string/lbl_record_off"
+				android:textOn="@string/lbl_record_on"
 				tools:ignore="HardcodedText" />
+
+			<TextView
+				android:id="@+id/textView28"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_newline" />
 
 			<TextView
 				android:id="@+id/textView4"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Gyroscope"
+				android:text="@string/lbl_gyroscope"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -247,8 +268,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -268,8 +289,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -289,15 +310,22 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Start recording"
-				android:textOn="Stop recording"
+				android:textOff="@string/lbl_record_off"
+				android:textOn="@string/lbl_record_on"
 				tools:ignore="HardcodedText" />
+
+			<TextView
+				android:id="@+id/textView29"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/lbl_newline" />
 
 			<TextView
 				android:id="@+id/textView5"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Light"
+				android:text="@string/lbl_light"
+				android:textAppearance="@style/TextAppearance.AppCompat.Button"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -328,8 +356,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -349,8 +377,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Send"
-				android:textOn="Stop"
+				android:textOff="@string/lbl_send"
+				android:textOn="@string/lbl_stop"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -370,8 +398,8 @@
 				android:layout_height="wrap_content"
 				android:checked="false"
 				android:text="ToggleButton"
-				android:textOff="Start recording"
-				android:textOn="Stop recording"
+				android:textOff="@string/lbl_record_off"
+				android:textOn="@string/lbl_record_on"
 				tools:ignore="HardcodedText" />
 
 

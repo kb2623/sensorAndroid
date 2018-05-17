@@ -18,10 +18,23 @@
 
 	<string name="pref_header_general">General</string>
 
-    <string name="lbl_time_source">Time source</string>
-    <string name="lbl_sound_source">Sound source</string>
-    <string name="lbl_encoder">Encoder</string>
-    <string name="lbl_output_format">Output format</string>
+	<string name="lbl_empty"> </string>
+	<string name="lbl_newline">\n</string>
+	<string name="lbl_time_source">Time source</string>
+	<string name="lbl_sound_source">Sound source</string>
+	<string name="lbl_encoder">Encoder</string>
+	<string name="lbl_output_format">Output format</string>
+	<string name="lbl_sample_rate">Sample rate</string>
+	<string name="lbl_record_off">Start recording</string>
+	<string name="lbl_record_on">Stop recording</string>
+	<string name="lbl_channels">Channels</string>
+	<string name="lbl_file_name">File name</string>
+	<string name="lbl_gyroscope">Gyroscope</string>
+	<string name="lbl_accelerometer">Accelerometer</string>
+	<string name="lbl_proximity">Proximity</string>
+	<string name="lbl_light">Light</string>
+	<string name="lbl_send">Send</string>
+	<string name="lbl_stop">Stop</string>
 
 	<string name="pref_title_social_recommendations">Enable social recommendations</string>
 	<string name="pref_description_social_recommendations">Recommendations for people to contact
