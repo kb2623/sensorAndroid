@@ -18,6 +18,11 @@
 
 	<string name="pref_header_general">General</string>
 
+    <string name="lbl_time_source">Time source</string>
+    <string name="lbl_sound_source">Sound source</string>
+    <string name="lbl_encoder">Encoder</string>
+    <string name="lbl_output_format">Output format</string>
+
 	<string name="pref_title_social_recommendations">Enable social recommendations</string>
 	<string name="pref_description_social_recommendations">Recommendations for people to contact
 		based on your message history

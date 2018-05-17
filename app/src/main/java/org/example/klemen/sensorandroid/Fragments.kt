@@ -1,8 +1,9 @@
-@file:Suppress("unused", "DEPRECATION", "CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER", "UNCHECKED_CAST")
+@file:Suppress("unused", "DEPRECATION", "CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER", "UNCHECKED_CAST", "LocalVariableName", "RedundantOverride")
 
 package org.example.klemen.sensorandroid
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.DialogInterface
@@ -11,6 +12,7 @@ import android.hardware.Sensor
 import android.media.MediaRecorder
 import android.net.LocalServerSocket
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
@@ -28,8 +30,8 @@ import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
+import java.io.File
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.*
 
 class FragmentPlaceholder : Fragment() {
@@ -64,6 +66,7 @@ class FragmentPlaceholder : Fragment() {
 
 class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
+	@SuppressLint("ValidFragment")
 	constructor(time_out: TextView) : this() {
 		this.time_out = time_out
 	}
@@ -79,8 +82,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		val hour = cal.get(Calendar.HOUR_OF_DAY)
 		val minute = cal.get(Calendar.MINUTE)
-		val tp = TimePickerDialog(activity, this, hour, minute, true)
-		return tp
+		return TimePickerDialog(activity, this, hour, minute, true)
 	}
 
 	override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
@@ -276,7 +278,7 @@ class FragmentRecorder : Fragment() {
 	private var audio_data: LocalServerSocket? = null
 	private var rec: Record? = null
 
-	class Record : MediaRecorder() {
+	class Record() : MediaRecorder() {
 
 		var recording = false
 
@@ -311,7 +313,7 @@ class FragmentRecorder : Fragment() {
 		uic.frecTbtnRecord.setOnClickListener{
 			if (uic.frecTbtnRecord.isChecked) {
 				rec = makeRecorder()
-				Handler().postDelayed(Runnable { rec!!.startRecording() }, timeSourceDelay())
+				Handler().postDelayed({ rec!!.startRecording() }, timeSourceDelay())
 			} else {
 				rec!!.stopRecording()
 			}
@@ -327,35 +329,75 @@ class FragmentRecorder : Fragment() {
 	private fun timeSourceDelay(): Long {
 		if (!uic.frecTbtnSetTime.isChecked) return 0L
 		val cal = Calendar.getInstance()
-		val dr = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS").parse("%s %s:00.000".format(SimpleDateFormat("dd.MM.yyyy").format(cal.time), uic.frecTwRecordTime.text))
-		return dr.time - getCurrTime().time
+		cal.set(Calendar.HOUR_OF_DAY, 0)
+		cal.set(Calendar.MINUTE, 0)
+		cal.set(Calendar.MILLISECOND, 0)
+		return cal.time.time - getCurrTime().time
 	}
 
-	private fun soundSource(): Int = when(uic.frecSbSoundSource.selectedItem.toString()) {
-		resources.getStringArray(R.array.audioSources)[1] -> MediaRecorder.AudioSource.MIC
-		resources.getStringArray(R.array.audioSources)[2] -> MediaRecorder.AudioSource.CAMCORDER
-		resources.getStringArray(R.array.audioSources)[3] -> MediaRecorder.AudioSource.VOICE_UPLINK
-		else -> MediaRecorder.AudioSource.DEFAULT
+	private fun soundSource(): Int {
+		val arr = resources.getStringArray(R.array.audioSources)
+		return when (uic.frecSbSoundSource.selectedItem.toString()) {
+			arr[1] -> MediaRecorder.AudioSource.MIC
+			arr[2] -> MediaRecorder.AudioSource.CAMCORDER
+			arr[3] -> MediaRecorder.AudioSource.VOICE_UPLINK
+			else -> MediaRecorder.AudioSource.DEFAULT
+		}
 	}
 
-	private fun audioEncoder(): Int = when (uic.frecSbAudioEncoder.selectedItem.toString()) {
-		resources.getStringArray(R.array.audioEncoder)[0] -> MediaRecorder.AudioEncoder.AAC_ELD
-		resources.getStringArray(R.array.audioEncoder)[1] -> MediaRecorder.AudioEncoder.AAC
-		resources.getStringArray(R.array.audioEncoder)[2] -> MediaRecorder.AudioEncoder.AMR_NB
-		resources.getStringArray(R.array.audioEncoder)[3] -> MediaRecorder.AudioEncoder.AMR_WB
-		resources.getStringArray(R.array.audioEncoder)[4] -> MediaRecorder.AudioEncoder.HE_AAC
-		resources.getStringArray(R.array.audioEncoder)[5] -> MediaRecorder.AudioEncoder.VORBIS
-		else -> MediaRecorder.AudioEncoder.DEFAULT
+	private fun audioEncoder(): Int {
+		val arr = resources.getStringArray(R.array.audioEncoder)
+		return when (uic.frecSbAudioEncoder.selectedItem.toString()) {
+			arr[0] -> MediaRecorder.AudioEncoder.AAC_ELD
+			arr[1] -> MediaRecorder.AudioEncoder.AAC
+			arr[2] -> MediaRecorder.AudioEncoder.AMR_NB
+			arr[3] -> MediaRecorder.AudioEncoder.AMR_WB
+			arr[4] -> MediaRecorder.AudioEncoder.HE_AAC
+			arr[5] -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				MediaRecorder.AudioEncoder.VORBIS
+			} else {
+				TODO("VERSION.SDK_INT < LOLLIPOP")
+			}
+			else -> MediaRecorder.AudioEncoder.DEFAULT
+		}
+	}
+
+	private fun outputFormat(): Int {
+		val arr = resources.getStringArray(R.array.outputFormat)
+		return when (uic.frecSbOutputFormat.selectedItem.toString()) {
+			arr[0] -> MediaRecorder.OutputFormat.AAC_ADTS
+			arr[1] -> MediaRecorder.OutputFormat.AMR_NB
+			arr[2] -> MediaRecorder.OutputFormat.AMR_WB
+			arr[3] -> MediaRecorder.OutputFormat.THREE_GPP
+			arr[4] -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				MediaRecorder.OutputFormat.WEBM
+			} else {
+				TODO("VERSION.SDK_INT < LOLLIPOP")
+			}
+			arr[5] -> MediaRecorder.OutputFormat.MPEG_4
+			arr[6] -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				MediaRecorder.OutputFormat.MPEG_2_TS
+			} else {
+				TODO("VERSION.SDK_INT < O")
+			}
+			else -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				MediaRecorder.OutputFormat.MPEG_2_TS
+			} else {
+				TODO("VERSION.SDK_INT < O")
+			}
+		}
 	}
 
 	private fun makeRecorder(): Record {
-		// TODO multiple sources ...
+		val file = File(context!!.filesDir, "%s%s".format(uic.frecEtFileName.text.toString(), resources.getStringArray(R.array.fileEndingsForFormats)[uic.frecSbOutputFormat.selectedItemPosition]))
+		if (!file.isFile) file.createNewFile()
 		val r = Record()
 		r.setAudioChannels(uic.frecEtChannels.text.toString().toInt())
 		r.setAudioSamplingRate(uic.frecEtSampleRate.text.toString().toInt())
-		r.setOutputFile(uic.frecEtFileName.text.toString())
 		r.setAudioSource(soundSource())
-		r.setOutputFormat(audioEncoder())
+		r.setOutputFormat(outputFormat())
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) r.setOutputFile(file)
+		r.setAudioEncoder(audioEncoder())
 		return r
 	}
 
@@ -369,14 +411,15 @@ class FragmentRecorder : Fragment() {
 	}
 }
 
-class FragmentTimeSync() : Fragment() {
+class FragmentTimeSync : Fragment() {
 
 	private lateinit var uic: View
 
-	inner class InitTime(): AsyncTask<String, Int, Int>() {
+	@SuppressLint("StaticFieldLeak")
+	inner class InitTime : AsyncTask<String, Int, Int>() {
 
 		override fun doInBackground(vararg params: String?): Int {
-			TrueTimeRx.build().initializeRx(if (params.size > 0) params[0] else "time.google.com").subscribeOn(Schedulers.io()).subscribe()
+			TrueTimeRx.build().initializeRx(if (params.isNotEmpty()) params[0] else "time.google.com").subscribeOn(Schedulers.io()).subscribe()
 			return 0
 		}
 	}
@@ -402,7 +445,7 @@ class FragmentTimeSync() : Fragment() {
 		return "%2d:%2d:%2d.%3d".format(a[0], a[1], a[2], a[3])
 	}
 
-	private fun getDateArr(cal: Calendar): Array<Int> = arrayOf<Int>(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND))
+	private fun getDateArr(cal: Calendar): Array<Int> = arrayOf(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND))
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)

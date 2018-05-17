@@ -140,7 +140,6 @@ class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void
 
 }
 
-
 class SendTask_File(val fileName: String?, context: Context?) : SendTask<Void, Void>() {
 
 	private lateinit var pw: PrintWriter
