@@ -12,8 +12,6 @@ import android.hardware.Sensor
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.media.MediaSyncEvent
-import android.net.LocalServerSocket
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
@@ -33,10 +31,10 @@ import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
-import java.io.File
 import java.io.RandomAccessFile
 import java.net.URL
 import java.util.*
+import kotlin.math.abs
 
 class FragmentPlaceholder : Fragment() {
 
@@ -273,6 +271,8 @@ class FragmentSensors : Fragment() {
 /**
  * Pomoc pri implementaciji:
  * 	https://github.com/roman10/roman10-android-tutorial/blob/master/AndroidWaveRecorder/src/roman10/tutorial/androidwaverecorder/WavAudioRecorder.java
+ *
+ * https://gist.github.com/kmark/d8b1b01fb0d2febf5770
  */
 class FragmentRecorder : Fragment() {
 
@@ -298,13 +298,16 @@ class FragmentRecorder : Fragment() {
 		private var buffer = Array<Byte>(bufferSizeInBytes, { _ -> 0 })
 
 		override fun onMarkerReached(recorder: AudioRecord?) {
-			TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+			// TODO("not implemented")
+			Log.d(LOG_TAG, "onMarkerReached")
 		}
 
 		override fun onPeriodicNotification(recorder: AudioRecord?) {
 			Log.d(LOG_TAG, "READING data")
 			val numOfBytes = read(buffer.toByteArray(), 0, buffer.size)
-			file!!.write(buffer.toByteArray())
+			Log.d(LOG_TAG, "READING data done\nWriting Data")
+			file?.write(buffer.toByteArray())
+			Log.d(LOG_TAG, "Writin done")
 			payloadSize += buffer.size
 		}
 
@@ -328,20 +331,20 @@ class FragmentRecorder : Fragment() {
 
 		fun startRecording(fileName: String, mPeriodInFrams: Int) {
 			prepareFile(fileName, 0, channelCount, sampleRate)
-			setPositionNotificationPeriod(mPeriodInFrams)
+			positionNotificationPeriod = mPeriodInFrams
 			payloadSize = 0
 			super.startRecording()
 			// Ovezna vrstica, kaeter podatkov ne poterbujemo, vendar je pomembno da preberemo nekaj iz naprave pred zacetkom
-			read(buffer.toByteArray(), 0, buffer.size)
+//			read(buffer.toByteArray(), 0, buffer.size)
 		}
 
 		override fun stop() {
 			super.stop()
-			file!!.seek(4)
-			file!!.writeInt((36 + payloadSize).inv())
-			file!!.seek(40)
-			file!!.writeInt(payloadSize.inv())
-			file!!.close()
+			file?.seek(4)
+			file?.writeInt((36 + payloadSize).inv())
+			file?.seek(40)
+			file?.writeInt(payloadSize.inv())
+			file?.close()
 		}
 	}
 
@@ -367,10 +370,11 @@ class FragmentRecorder : Fragment() {
 				val mPeriosInFrames = mBufferSize / (2 * mBitsPersample * channels / 8)
 				rec = Recorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
 				Handler().postDelayed({
-					rec!!.startRecording("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()), mPeriosInFrames)
+					Log.d(LOG_TAG, "Time delay: %d\nmPerios: %d\nchanels %d\nbuffSize: %d\nren == null %s".format(timeSourceDelay(), mPeriosInFrames, channels, mBufferSize, rec == null))
+					rec?.startRecording("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()), mPeriosInFrames)
 				}, timeSourceDelay())
 			} else {
-				rec!!.stop()
+				rec?.stop()
 			}
 		}
 		return uic
@@ -387,7 +391,7 @@ class FragmentRecorder : Fragment() {
 		cal.set(Calendar.HOUR_OF_DAY, 0)
 		cal.set(Calendar.MINUTE, 0)
 		cal.set(Calendar.MILLISECOND, 0)
-		return cal.time.time - getCurrTime().time
+		return abs(cal.time.time - getCurrTime().time)
 	}
 
 	private fun soundSource(): Int {
@@ -450,7 +454,11 @@ class FragmentRecorder : Fragment() {
 		return when (uic.frecSbAudioFormat.selectedItem.toString()) {
 			arr[0] -> AudioFormat.ENCODING_PCM_16BIT
 			arr[1] -> AudioFormat.ENCODING_PCM_8BIT
-			arr[2] -> AudioFormat.ENCODING_PCM_FLOAT
+			arr[2] -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				AudioFormat.ENCODING_PCM_FLOAT
+			} else {
+				TODO("VERSION.SDK_INT < LOLLIPOP")
+			}
 //			arr[3] -> AudioFormat.ENCODING_AC3
 //			arr[4] -> AudioFormat.ENCODING_DOLBY_TRUEHD
 //			arr[5] -> AudioFormat.ENCODING_DTS
@@ -471,7 +479,6 @@ class FragmentRecorder : Fragment() {
 	private fun audioChanelsProp(): Int {
 		val arr = resources.getStringArray(R.array.audioChannels)
 		return when (uic.frecSbChannels.selectedItem.toString()) {
-			arr[0] -> AudioFormat.CHANNEL_IN_MONO
 			arr[1] -> AudioFormat.CHANNEL_IN_STEREO
 			else -> AudioFormat.CHANNEL_IN_MONO
 		}
