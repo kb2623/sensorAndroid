@@ -34,6 +34,7 @@ import kotlinx.android.synthetic.main.frag_time.view.*
 import java.io.RandomAccessFile
 import java.net.URL
 import java.util.*
+import kotlin.experimental.inv
 import kotlin.math.abs
 
 class FragmentPlaceholder : Fragment() {
@@ -297,17 +298,18 @@ class FragmentRecorder : Fragment() {
 		private var file: RandomAccessFile? = null
 		private var buffer = Array<Byte>(bufferSizeInBytes, { _ -> 0 })
 
+		init {
+			setRecordPositionUpdateListener(this)
+		}
+
 		override fun onMarkerReached(recorder: AudioRecord?) {
 			// TODO("not implemented")
 			Log.d(LOG_TAG, "onMarkerReached")
 		}
 
 		override fun onPeriodicNotification(recorder: AudioRecord?) {
-			Log.d(LOG_TAG, "READING data")
 			val numOfBytes = read(buffer.toByteArray(), 0, buffer.size)
-			Log.d(LOG_TAG, "READING data done\nWriting Data")
 			file?.write(buffer.toByteArray())
-			Log.d(LOG_TAG, "Writin done")
 			payloadSize += buffer.size
 		}
 
@@ -318,6 +320,7 @@ class FragmentRecorder : Fragment() {
 			file!!.writeInt(0)
 			file!!.writeBytes("WAVE")
 			file!!.writeBytes("fmt ")
+			Log.d(LOG_TAG, "%d".format(formatBits.toByte().inv()))
 			file!!.writeInt(formatBits.inv())
 			file!!.writeShort(1.inv())
 			file!!.writeShort(channels.inv())
@@ -335,7 +338,7 @@ class FragmentRecorder : Fragment() {
 			payloadSize = 0
 			super.startRecording()
 			// Ovezna vrstica, kaeter podatkov ne poterbujemo, vendar je pomembno da preberemo nekaj iz naprave pred zacetkom
-//			read(buffer.toByteArray(), 0, buffer.size)
+			read(buffer.toByteArray(), 0, buffer.size)
 		}
 
 		override fun stop() {
@@ -361,17 +364,10 @@ class FragmentRecorder : Fragment() {
 		}
 		uic.frecTbtnRecord.setOnClickListener{
 			if (uic.frecTbtnRecord.isChecked) {
-				val sampleRate = uic.frecSbSampleRate.selectedItem.toString().toInt()
-				val channels = audioChanelsNum()
-				val channelsProp = audioChanelsProp()
-				val mBitsPersample = audioFormatBits()
-				val audioFormat = audioFormat()
-				val mBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelsProp, audioFormat)
-				val mPeriosInFrames = mBufferSize / (2 * mBitsPersample * channels / 8)
-				rec = Recorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
+				val (recn, mPeriodsInFrames) = createRecorder()
+				rec = recn
 				Handler().postDelayed({
-					Log.d(LOG_TAG, "Time delay: %d\nmPerios: %d\nchanels %d\nbuffSize: %d\nren == null %s".format(timeSourceDelay(), mPeriosInFrames, channels, mBufferSize, rec == null))
-					rec?.startRecording("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()), mPeriosInFrames)
+					rec?.startRecording("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()), mPeriodsInFrames)
 				}, timeSourceDelay())
 			} else {
 				rec?.stop()
@@ -491,6 +487,20 @@ class FragmentRecorder : Fragment() {
 			arr[1] -> 2
 			else -> 1
 		}
+	}
+
+	private fun createRecorder(): Pair<Recorder, Int> {
+		val sampleRate = uic.frecSbSampleRate.selectedItem.toString().toInt()
+		val channels = audioChanelsNum()
+		val channelsProp = audioChanelsProp()
+		val mBitsPersample = audioFormatBits()
+		val audioFormat = audioFormat()
+		val mBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelsProp, audioFormat)
+		val mPeriodsInFrames = mBufferSize / (2 * mBitsPersample * channels / 8)
+		val rec = Recorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
+//		rec.setRecordPositionUpdateListener(rec)
+		rec.positionNotificationPeriod = mPeriodsInFrames
+		return Pair(rec, mPeriodsInFrames)
 	}
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
