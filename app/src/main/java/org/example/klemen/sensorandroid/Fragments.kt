@@ -1,6 +1,12 @@
-@file:Suppress("unused", "DEPRECATION", "CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER", "UNCHECKED_CAST", "LocalVariableName", "RedundantOverride")
+@file:Suppress("unused", "DEPRECATION", "CAST_NEVER_SUCCEEDS", "MemberVisibilityCanBePrivate", "PrivatePropertyName", "UNUSED_VARIABLE", "UNUSED_ANONYMOUS_PARAMETER", "UNCHECKED_CAST", "LocalVariableName", "RedundantOverride", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 
 package org.example.klemen.sensorandroid
+
+import java.io.RandomAccessFile
+import java.net.URL
+import java.util.*
+import java.lang.Short
+import java.lang.Integer
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,9 +22,11 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.support.annotation.IntegerRes
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,9 +39,7 @@ import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
-import java.io.RandomAccessFile
-import java.net.URL
-import java.util.*
+
 import kotlin.experimental.inv
 import kotlin.math.abs
 
@@ -272,8 +278,7 @@ class FragmentSensors : Fragment() {
 /**
  * Pomoc pri implementaciji:
  * 	https://github.com/roman10/roman10-android-tutorial/blob/master/AndroidWaveRecorder/src/roman10/tutorial/androidwaverecorder/WavAudioRecorder.java
- *
- * https://gist.github.com/kmark/d8b1b01fb0d2febf5770
+ * 	https://gist.github.com/kmark/d8b1b01fb0d2febf5770
  */
 class FragmentRecorder : Fragment() {
 
@@ -283,77 +288,88 @@ class FragmentRecorder : Fragment() {
 	}
 
 	private var canRecord = false
-	private var rec: Recorder? = null
+	private var rec: BgTaskRecorder? = null
 	private lateinit var uic: View
 
-	class Recorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, auidoFormat: Int, bufferSizeInBytes: Int): AudioRecord(audioSource, sampleRateInHz, channelConfig, auidoFormat, bufferSizeInBytes), AudioRecord.OnRecordPositionUpdateListener {
+	class BgTaskRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioFormat: Int, bufferSizeInBytes: Int): AsyncTask<String, Void, Int>() {
 
 		companion object {
 			const val BUFFER_SIZE = 2048
 			const val TIMER_INTERVAL = 120
-			val LOG_TAG = Recorder::class.simpleName
+			val LOG_TAG = BgTaskRecorder::class.simpleName
 		}
 
+		private var rec = AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes)
 		private var payloadSize = 0
 		private var file: RandomAccessFile? = null
 		private var buffer = Array<Byte>(bufferSizeInBytes, { _ -> 0 })
 
-		init {
-			setRecordPositionUpdateListener(this)
+		override fun doInBackground(vararg params: String?): Int {
+			startRecording(params[0].toString())
+			while (!isCancelled) {
+				val numOfBytes = rec.read(buffer.toByteArray(), 0, buffer.size)
+				if (numOfBytes > 0) {
+					file?.write(buffer.toByteArray(), 0, numOfBytes)
+					payloadSize += numOfBytes
+				}
+			}
+			stopRecording()
+			return payloadSize
 		}
 
-		override fun onMarkerReached(recorder: AudioRecord?) {
-			// TODO("not implemented")
-			Log.d(LOG_TAG, "onMarkerReached")
+		private fun formatBits(format: Int) = when (format) {
+			AudioFormat.ENCODING_PCM_8BIT -> 8
+			AudioFormat.ENCODING_PCM_16BIT -> 16
+			AudioFormat.ENCODING_PCM_FLOAT -> 32
+			else -> 0
 		}
 
-		override fun onPeriodicNotification(recorder: AudioRecord?) {
-			val numOfBytes = read(buffer.toByteArray(), 0, buffer.size)
-			file?.write(buffer.toByteArray())
-			payloadSize += buffer.size
-		}
-
-		private fun prepareFile(fileName: String, formatBits: Int, channels: Int, sampleRate: Int) {
+		private fun prepareFile(fileName: String) {
+			val formatBits = formatBits(rec.audioFormat)
 			file = RandomAccessFile(fileName, "rw")
-			file!!.setLength(0)
-			file!!.writeBytes("RIFF")
-			file!!.writeInt(0)
-			file!!.writeBytes("WAVE")
-			file!!.writeBytes("fmt ")
-			Log.d(LOG_TAG, "%d".format(formatBits.toByte().inv()))
-			file!!.writeInt(formatBits.inv())
-			file!!.writeShort(1.inv())
-			file!!.writeShort(channels.inv())
-			file!!.writeInt(sampleRate.inv())
-			file!!.writeInt((sampleRate * channels * formatBits / 8).inv())
-			file!!.writeShort((channels * formatBits / 8).inv())
-			file!!.writeShort(formatBits.inv())
-			file!!.writeBytes("data")
-			file!!.writeInt(0)
-		}
-
-		fun startRecording(fileName: String, mPeriodInFrams: Int) {
-			prepareFile(fileName, 0, channelCount, sampleRate)
-			positionNotificationPeriod = mPeriodInFrams
 			payloadSize = 0
-			super.startRecording()
-			// Ovezna vrstica, kaeter podatkov ne poterbujemo, vendar je pomembno da preberemo nekaj iz naprave pred zacetkom
-			read(buffer.toByteArray(), 0, buffer.size)
+			file?.setLength(0)
+			file?.writeBytes("RIFF")
+			file?.writeInt(0)
+			file?.writeBytes("WAVE")
+			file?.writeBytes("fmt ")
+			file?.writeInt(Integer.reverseBytes(formatBits))
+			file?.writeShort(Short.reverseBytes(1).toInt())
+			file?.writeShort(Short.reverseBytes(rec.channelCount.toShort()).toInt())
+			file?.writeInt(Integer.reverseBytes(rec.sampleRate))
+			file?.writeInt(Integer.reverseBytes(rec.sampleRate * rec.channelCount * formatBits / 8))
+			file?.writeShort(Short.reverseBytes((rec.channelCount * formatBits / 8).toShort()).toInt())
+			file?.writeShort(Short.reverseBytes(formatBits.toShort()).toInt())
+			file?.writeBytes("data")
+			file?.writeInt(0)
 		}
 
-		override fun stop() {
-			super.stop()
+		private fun startRecording(fileName: String) {
+			prepareFile(fileName)
+		}
+
+		private fun stopRecording() {
+			rec.stop()
+			rec.release()
 			file?.seek(4)
-			file?.writeInt((36 + payloadSize).inv())
+			file?.writeInt(Integer.reverseBytes(36 + payloadSize))
 			file?.seek(40)
-			file?.writeInt(payloadSize.inv())
+			file?.writeInt(Integer.reverseBytes(payloadSize))
 			file?.close()
+		}
+	}
+
+	private fun setupPermissions() {
+		if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+		} else {
+			canRecord = true
 		}
 	}
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_recorder, container, false)
-		ActivityCompat.requestPermissions(this.activity!!, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+		setupPermissions()
 		uic.frecTbtnSetTime.setOnClickListener {
 			if (uic.frecTbtnSetTime.isChecked) {
 				val frag = FragmentTimePicker(frecTwRecordTime)
@@ -362,18 +378,28 @@ class FragmentRecorder : Fragment() {
 				frecTwRecordTime.text = getString(R.string.time_init_text)
 			}
 		}
+		if (!canRecord) uic.frecTbtnRecord.isEnabled = false
 		uic.frecTbtnRecord.setOnClickListener{
 			if (uic.frecTbtnRecord.isChecked) {
-				val (recn, mPeriodsInFrames) = createRecorder()
-				rec = recn
+				rec = createRecorder()
 				Handler().postDelayed({
-					rec?.startRecording("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()), mPeriodsInFrames)
+					rec?.execute("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()))
 				}, timeSourceDelay())
 			} else {
-				rec?.stop()
+				rec?.cancel(true)
 			}
 		}
 		return uic
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		Log.d(LOG_TAG, "DELA MAN")
+		when(requestCode) {
+			REQUEST_RECORD_AUDIO_PERMISSION -> canRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED
+		}
+		if (!canRecord) Toast.makeText(activity, resources.getString(R.string.mess_can_not_rec), Toast.LENGTH_SHORT).show()
+		else Toast.makeText(activity, resources.getString(R.string.mess_can_rec), Toast.LENGTH_SHORT).show()
 	}
 
 	private fun getCurrTime(): Date = when (uic.frecSbTimeSource.selectedItem.toString()) {
@@ -455,9 +481,6 @@ class FragmentRecorder : Fragment() {
 			} else {
 				TODO("VERSION.SDK_INT < LOLLIPOP")
 			}
-//			arr[3] -> AudioFormat.ENCODING_AC3
-//			arr[4] -> AudioFormat.ENCODING_DOLBY_TRUEHD
-//			arr[5] -> AudioFormat.ENCODING_DTS
 			else -> AudioFormat.ENCODING_DEFAULT
 		}
 	}
@@ -489,27 +512,15 @@ class FragmentRecorder : Fragment() {
 		}
 	}
 
-	private fun createRecorder(): Pair<Recorder, Int> {
+	private fun createRecorder(): BgTaskRecorder {
 		val sampleRate = uic.frecSbSampleRate.selectedItem.toString().toInt()
 		val channels = audioChanelsNum()
 		val channelsProp = audioChanelsProp()
 		val mBitsPersample = audioFormatBits()
 		val audioFormat = audioFormat()
 		val mBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelsProp, audioFormat)
-		val mPeriodsInFrames = mBufferSize / (2 * mBitsPersample * channels / 8)
-		val rec = Recorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
-//		rec.setRecordPositionUpdateListener(rec)
-		rec.positionNotificationPeriod = mPeriodsInFrames
-		return Pair(rec, mPeriodsInFrames)
-	}
-
-	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		when(requestCode) {
-			REQUEST_RECORD_AUDIO_PERMISSION -> canRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED
-		}
-		if (!canRecord) Log.d(LOG_TAG, "CAN NOT read form audio device on your machine")
-		else Log.d(LOG_TAG, "CAN read form audio device on your machine")
+		val rec = BgTaskRecorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
+		return rec
 	}
 }
 

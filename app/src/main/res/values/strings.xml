@@ -36,6 +36,9 @@
 	<string name="lbl_send">Send</string>
 	<string name="lbl_stop">Stop</string>
 
+	<string name="mess_can_not_rec">You can not record!!!</string>
+	<string name="mess_can_rec">You can record!!!</string>
+
 	<string name="pref_title_social_recommendations">Enable social recommendations</string>
 	<string name="pref_description_social_recommendations">Recommendations for people to contact
 		based on your message history
