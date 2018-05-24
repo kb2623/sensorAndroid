@@ -2,10 +2,6 @@
 
 package org.example.klemen.sensorandroid
 
-import java.io.RandomAccessFile
-import java.net.URL
-import java.util.*
-
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -16,11 +12,9 @@ import android.hardware.Sensor
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.IntegerRes
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
@@ -29,22 +23,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.TextView
+import android.widget.TimePicker
+import android.widget.Toast
+import android.widget.ToggleButton
 import com.instacart.library.truetime.TrueTimeRx
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_main.view.*
 import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
-
-import kotlin.experimental.inv
+import java.net.URL
+import java.util.*
 import kotlin.math.abs
 
 class FragmentPlaceholder : Fragment() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = FragmentPlaceholder::class.simpleName
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
@@ -78,7 +74,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	}
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = FragmentTimePicker::class.simpleName
 	}
 
 	private var time_out: TextView? = null
@@ -105,7 +101,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 class FragmentSensors : Fragment() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = FragmentSensors::class.simpleName
 	}
 
 	private var dG_acce: DataGetter? = null
@@ -125,8 +121,49 @@ class FragmentSensors : Fragment() {
 
 	private lateinit var uic: View
 
+	private fun pressSendUrl() {
+		// FixME
+		val freq = uic.fsenEtFreqSr.text.toString().toInt()
+		val urlText = uic.fsenEtUrl.text.toString()
+		val proxRate = uic.fsenEtProxRate.text.toString().toInt()
+		val urlText_prox = uic.fsenEtProxUrl.text.toString()
+		val address = "$urlText/$urlText_prox"
+		if (dG_prox == null || dG_prox!!.st.address() != address) {
+			val st_prox = SendTask_JSON_HTTP(URL(address), arrayOf("cm")) as SendTask<Void, Void>
+			dG_prox = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
+		}
+		startStopDataGetter(freq, dG_prox!!, uic.fsenTbtnProxUrlSend)
+	}
+
+	private fun pressSendSocket() {
+		// FIXME
+		val freq = uic.fsenEtFreqSr.text.toString().toInt()
+		val serverIpText = uic.fsenEtServerIp.text.toString()
+		val portText_prox = uic.fsenEtProxPort.text.toString()
+		val proxRate = uic.fsenEtProxRate.text.toString().toInt()
+		val address = "$serverIpText:$portText_prox"
+		if (dG_prox2 == null || dG_prox2!!.st.address() != address) {
+			val st_prox = SendTask_Socket(address) as SendTask<Void, Void>
+			dG_prox2 = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
+		}
+		startStopDataGetter(freq, dG_prox2!!, uic.fsenTbtnProxPortSend)
+	}
+
+	private fun pressSaveToFile() {
+		// FIXME
+		val freq = uic.fsenEtFreqSr.text.toString().toInt()
+		val fileName = uic.fsenEtProxFile.text.toString()
+		val proxRate = uic.fsenEtProxRate.text.toString().toInt()
+		if (dG_prox3 == null || dG_prox3!!.st.address() != fileName) {
+			val st_prox = SendTask_File(fileName, this.context!!)
+			dG_prox3 = DataGetter(this.context!!, Sensor.TYPE_PROXIMITY, st_prox, proxRate)
+		}
+		startStopDataGetter(freq, dG_prox3!!, uic.fsenTbtnProxToFile)
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		val uic = inflater.inflate(R.layout.frag_sensors, container, false)
+		// FIXME
 		uic.fsenTbtnProxUrlSend.setOnClickListener{
 			val freq = uic.fsenEtFreqSr.text.toString().toInt()
 			val urlText = uic.fsenEtUrl.text.toString()
@@ -280,7 +317,7 @@ class FragmentSensors : Fragment() {
 class FragmentRecorder : Fragment() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = FragmentRecorder::class.simpleName
 		const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 	}
 
@@ -296,28 +333,32 @@ class FragmentRecorder : Fragment() {
 		}
 	}
 
+	private fun pressBtnSetTime() {
+		if (uic.frecTbtnSetTime.isChecked) {
+			val frag = FragmentTimePicker(frecTwRecordTime)
+			frag.show(fragmentManager, "Time Picker")
+		} else {
+			frecTwRecordTime.text = getString(R.string.time_init_text)
+		}
+	}
+
+	private fun pressBtnRecord() {
+		if (uic.frecTbtnRecord.isChecked) {
+			rec = createRecorder()
+			Handler().postDelayed({
+				rec?.execute("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()))
+			}, timeSourceDelay())
+		} else {
+			rec?.cancel(true)
+		}
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_recorder, container, false)
 		setupPermissions()
-		uic.frecTbtnSetTime.setOnClickListener {
-			if (uic.frecTbtnSetTime.isChecked) {
-				val frag = FragmentTimePicker(frecTwRecordTime)
-				frag.show(fragmentManager, "Time Picker")
-			} else {
-				frecTwRecordTime.text = getString(R.string.time_init_text)
-			}
-		}
+		uic.frecTbtnSetTime.setOnClickListener { pressBtnSetTime() }
 		if (!canRecord) uic.frecTbtnRecord.isEnabled = false
-		uic.frecTbtnRecord.setOnClickListener{
-			if (uic.frecTbtnRecord.isChecked) {
-				rec = createRecorder()
-				Handler().postDelayed({
-					rec?.execute("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()))
-				}, timeSourceDelay())
-			} else {
-				rec?.cancel(true)
-			}
-		}
+		uic.frecTbtnRecord.setOnClickListener{ pressBtnRecord() }
 		return uic
 	}
 
@@ -456,24 +497,27 @@ class FragmentRecorder : Fragment() {
 class FragmentTimeSync : Fragment() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = FragmentTimeSync::class.simpleName
 	}
 
 	private lateinit var uic: View
 
+	private fun pressStnGetTime() {
+		val cal = Calendar.getInstance()
+		val t1 = cal.time
+		val t2 = TrueTimeRx.now()
+		uic.ftimEtPhoneTime.text = getDateStr(cal)
+		cal.time = t2
+		uic.ftimEtServerTime.text = getDateStr(cal)
+		cal.time = Date(abs(t1.time - t2.time))
+		Log.d(LOG_TAG, "%d, %s".format(cal.time.time, getDateStr(cal)))
+		uic.ftimEtTimeDiff.text = getDateStr(cal)
+	}
+
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_time, container, false)
 		InitTime().execute(uic.ftimEtNTPServer.text.toString())
-		uic.ftimBtnGetTime.setOnClickListener {
-			val cal = Calendar.getInstance()
-			val t1 = cal.time
-			val t2 = TrueTimeRx.now()
-			uic.ftimEtPhoneTime.text = getDateStr(cal)
-			cal.time = t2
-			uic.ftimEtServerTime.text = getDateStr(cal)
-			cal.time = Date(if (t1.time > t2.time) t1.time - t2.time else t2.time - t1.time)
-			uic.ftimEtTimeDiff.text = getDateStr(cal)
-		}
+		uic.ftimBtnGetTime.setOnClickListener{ pressStnGetTime() }
 		return uic
 	}
 

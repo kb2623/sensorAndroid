@@ -12,6 +12,10 @@ import android.hardware.SensorManager
 class DataGetter(context: Context, private val
 sensorType: Int, var st: SendTask<Void, Void>, private val buff_size: Int = 100) : SensorEventListener {
 
+	companion object {
+		val LOG_TAG = DataGetter::class.simpleName
+	}
+
 	private val buff: ArrayList<Data> = ArrayList(buff_size)
 
 	private val sM: SensorManager by lazy {

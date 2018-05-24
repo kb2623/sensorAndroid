@@ -29,7 +29,7 @@ import java.lang.Integer
 abstract class SendTask<P, R>: AsyncTask<List<Data>, P, R>() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = SendTask::class.simpleName
 	}
 
 	var Ex: Exception? = null
@@ -41,7 +41,7 @@ abstract class SendTask<P, R>: AsyncTask<List<Data>, P, R>() {
 data class Data(val v: Array<out Any>, val time: Long) {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = Data::class.simpleName
 	}
 
 	override fun toString(): String {
@@ -67,7 +67,7 @@ data class Data(val v: Array<out Any>, val time: Long) {
 class SendTask_JSON_HTTP(private val url: URL, private val ofilds: Array<String>)  : SendTask<Void, Int>() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = SendTask_JSON_HTTP::class.simpleName
 	}
 
 	override fun doInBackground(vararg p0: List<Data>?): Int? {
@@ -114,7 +114,7 @@ class SendTask_JSON_HTTP(private val url: URL, private val ofilds: Array<String>
 class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void>() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = SendTask_Socket::class.simpleName
 	}
 
 	private var ipAddress = ""
@@ -169,7 +169,7 @@ class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void
 class SendTask_File(val fileName: String?, context: Context?) : SendTask<Void, Void>() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = SendTask_File::class.simpleName
 	}
 
 	private lateinit var pw: PrintWriter
@@ -218,7 +218,7 @@ abstract class BgTaskRecorder(audioSource: Int, sampleRateInHz: Int, channelConf
 	companion object {
 		const val BUFFER_SIZE = 2048
 		const val TIMER_INTERVAL = 120
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = BgTaskRecorder::class.simpleName
 	}
 
 	protected var rec = AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes)
@@ -273,7 +273,7 @@ abstract class BgTaskRecorder(audioSource: Int, sampleRateInHz: Int, channelConf
 class BgTaskRecorderFile(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioFormat: Int, bufferSizeInBytes: Int): BgTaskRecorder(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes) {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = BgTaskRecorderFile::class.simpleName
 	}
 
 	override fun doInBackground(vararg params: String?): Int {
@@ -293,7 +293,7 @@ class BgTaskRecorderFile(audioSource: Int, sampleRateInHz: Int, channelConfig: I
 class InitTime : AsyncTask<String, Int, Int>() {
 
 	companion object {
-		val LOG_TAG = this::class.simpleName
+		val LOG_TAG = InitTime::class.simpleName
 	}
 
 	override fun doInBackground(vararg params: String?): Int {

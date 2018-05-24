@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -22,6 +21,10 @@ class MainActivity : AppCompatActivity() {
 	 * [android.support.v4.app.FragmentStatePagerAdapter].
 	 */
 	private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+
+	companion object {
+		val LOG_TAG = MainActivity::class.simpleName
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
