@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 	 */
 	inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
-		private var buff = listOf<Fragment>(FragmentTimeSync(), FragmentSensors(), FragmentRecorder())
+		private var buff = listOf<Fragment>(FragmentTimeSync(), FragmentRecorder(), FragmentSensors())
 
 		override fun getItem(position: Int): Fragment = buff[position]
 

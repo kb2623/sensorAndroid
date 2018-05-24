@@ -3,8 +3,8 @@
 	<string name="app_settings">Settings</string>
 
 	<string name="tab_text_1">Time sync</string>
-	<string name="tab_text_2">Sensors</string>
-	<string name="tab_text_3">Recording</string>
+	<string name="tab_text_2">Recording</string>
+	<string name="tab_text_3">Sensors</string>
 
 	<string name="action_settings">Settings</string>
 	<string name="section_format">Hello World from section: %1$d</string>
@@ -35,6 +35,8 @@
 	<string name="lbl_light">Light</string>
 	<string name="lbl_send">Send</string>
 	<string name="lbl_stop">Stop</string>
+	<string name="lbl_phone_time">Phone time</string>
+	<string name="lbl_server_time">Server time</string>
 
 	<string name="mess_can_not_rec">You can not record!!!</string>
 	<string name="mess_can_rec">You can record!!!</string>

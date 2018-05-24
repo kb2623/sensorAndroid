@@ -25,8 +25,8 @@
 				android:id="@+id/textView8"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Phone Time"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+				android:text="@string/lbl_phone_time"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
 			<TextView
 				android:id="@+id/ftimEtPhoneTime"
@@ -51,8 +51,8 @@
 				android:id="@+id/textView12"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="Server Time"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+				android:text="@string/lbl_server_time"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
 			<TextView
 				android:id="@+id/ftimEtServerTime"
@@ -78,7 +78,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/timeDiffLab"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
 			<TextView
 				android:id="@+id/ftimEtTimeDiff"

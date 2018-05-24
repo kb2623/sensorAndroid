@@ -302,14 +302,14 @@ class FragmentRecorder : Fragment() {
 		private var rec = AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes)
 		private var payloadSize = 0
 		private var file: RandomAccessFile? = null
-		private var buffer = Array<Byte>(bufferSizeInBytes, { _ -> 0 })
+		private var buffer = ByteArray(bufferSizeInBytes)
 
 		override fun doInBackground(vararg params: String?): Int {
 			startRecording(params[0].toString())
 			while (!isCancelled) {
-				val numOfBytes = rec.read(buffer.toByteArray(), 0, buffer.size)
+				val numOfBytes = rec.read(buffer, 0, buffer.size)
 				if (numOfBytes > 0) {
-					file?.write(buffer.toByteArray(), 0, numOfBytes)
+					file?.write(buffer, 0, numOfBytes)
 					payloadSize += numOfBytes
 				}
 			}
@@ -346,6 +346,7 @@ class FragmentRecorder : Fragment() {
 
 		private fun startRecording(fileName: String) {
 			prepareFile(fileName)
+			rec.startRecording()
 		}
 
 		private fun stopRecording() {

@@ -61,7 +61,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/lbl_proximity"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -149,7 +149,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/lbl_accelerometer"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -237,7 +237,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/lbl_gyroscope"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2"
 				tools:ignore="HardcodedText" />
 
 			<EditText
@@ -325,7 +325,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/lbl_light"
-				android:textAppearance="@style/TextAppearance.AppCompat.Button"
+				android:textAppearance="@style/TextAppearance.AppCompat.Body2"
 				tools:ignore="HardcodedText" />
 
 			<EditText
