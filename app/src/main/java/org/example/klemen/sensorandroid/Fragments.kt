@@ -5,8 +5,6 @@ package org.example.klemen.sensorandroid
 import java.io.RandomAccessFile
 import java.net.URL
 import java.util.*
-import java.lang.Short
-import java.lang.Integer
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -46,13 +44,12 @@ import kotlin.math.abs
 class FragmentPlaceholder : Fragment() {
 
 	companion object {
-		val LOG_TAG = FragmentPlaceholder::class.simpleName
+		val LOG_TAG = this::class.simpleName
 		/**
 		 * The fragment argument representing the section number for this
 		 * fragment.
 		 */
 		private const val ARG_SECTION_NUMBER = "section_number"
-
 		/**
 		 * Returns a new instance of this fragment for the given section
 		 * number.
@@ -81,7 +78,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	}
 
 	companion object {
-		val LOG_TAG = FragmentTimePicker::class.simpleName
+		val LOG_TAG = this::class.simpleName
 	}
 
 	private var time_out: TextView? = null
@@ -108,7 +105,7 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 class FragmentSensors : Fragment() {
 
 	companion object {
-		val LOG_TAG = FragmentSensors::class.simpleName
+		val LOG_TAG = this::class.simpleName
 	}
 
 	private var dG_acce: DataGetter? = null
@@ -283,82 +280,13 @@ class FragmentSensors : Fragment() {
 class FragmentRecorder : Fragment() {
 
 	companion object {
-		val LOG_TAG = FragmentRecorder::class.simpleName
+		val LOG_TAG = this::class.simpleName
 		const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 	}
 
 	private var canRecord = false
 	private var rec: BgTaskRecorder? = null
 	private lateinit var uic: View
-
-	class BgTaskRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioFormat: Int, bufferSizeInBytes: Int): AsyncTask<String, Void, Int>() {
-
-		companion object {
-			const val BUFFER_SIZE = 2048
-			const val TIMER_INTERVAL = 120
-			val LOG_TAG = BgTaskRecorder::class.simpleName
-		}
-
-		private var rec = AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes)
-		private var payloadSize = 0
-		private var file: RandomAccessFile? = null
-		private var buffer = ByteArray(bufferSizeInBytes)
-
-		override fun doInBackground(vararg params: String?): Int {
-			startRecording(params[0].toString())
-			while (!isCancelled) {
-				val numOfBytes = rec.read(buffer, 0, buffer.size)
-				if (numOfBytes > 0) {
-					file?.write(buffer, 0, numOfBytes)
-					payloadSize += numOfBytes
-				}
-			}
-			stopRecording()
-			return payloadSize
-		}
-
-		private fun formatBits(format: Int) = when (format) {
-			AudioFormat.ENCODING_PCM_8BIT -> 8
-			AudioFormat.ENCODING_PCM_16BIT -> 16
-			AudioFormat.ENCODING_PCM_FLOAT -> 32
-			else -> 0
-		}
-
-		private fun prepareFile(fileName: String) {
-			val formatBits = formatBits(rec.audioFormat)
-			file = RandomAccessFile(fileName, "rw")
-			payloadSize = 0
-			file?.setLength(0)
-			file?.writeBytes("RIFF")
-			file?.writeInt(0)
-			file?.writeBytes("WAVE")
-			file?.writeBytes("fmt ")
-			file?.writeInt(Integer.reverseBytes(formatBits))
-			file?.writeShort(Short.reverseBytes(1).toInt())
-			file?.writeShort(Short.reverseBytes(rec.channelCount.toShort()).toInt())
-			file?.writeInt(Integer.reverseBytes(rec.sampleRate))
-			file?.writeInt(Integer.reverseBytes(rec.sampleRate * rec.channelCount * formatBits / 8))
-			file?.writeShort(Short.reverseBytes((rec.channelCount * formatBits / 8).toShort()).toInt())
-			file?.writeShort(Short.reverseBytes(formatBits.toShort()).toInt())
-			file?.writeBytes("data")
-			file?.writeInt(0)
-		}
-
-		private fun startRecording(fileName: String) {
-			prepareFile(fileName)
-			rec.startRecording()
-		}
-
-		private fun stopRecording() {
-			rec.stop()
-			rec.release()
-			file?.seek(4)
-			file?.writeInt(Integer.reverseBytes(36 + payloadSize))
-			file?.seek(40)
-			file?.writeInt(Integer.reverseBytes(payloadSize))
-			file?.close()
-		}
-	}
 
 	private fun setupPermissions() {
 		if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -520,23 +448,18 @@ class FragmentRecorder : Fragment() {
 		val mBitsPersample = audioFormatBits()
 		val audioFormat = audioFormat()
 		val mBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelsProp, audioFormat)
-		val rec = BgTaskRecorder(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
+		val rec = BgTaskRecorderFile(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
 		return rec
 	}
 }
 
 class FragmentTimeSync : Fragment() {
 
-	private lateinit var uic: View
-
-	@SuppressLint("StaticFieldLeak")
-	inner class InitTime : AsyncTask<String, Int, Int>() {
-
-		override fun doInBackground(vararg params: String?): Int {
-			TrueTimeRx.build().initializeRx(if (params.isNotEmpty()) params[0] else "time.google.com").subscribeOn(Schedulers.io()).subscribe()
-			return 0
-		}
+	companion object {
+		val LOG_TAG = this::class.simpleName
 	}
+
+	private lateinit var uic: View
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_time, container, false)

@@ -1,21 +1,37 @@
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+
 package org.example.klemen.sensorandroid
 
 import android.content.Context
+import android.media.AudioFormat
+import android.media.AudioRecord
 import android.os.AsyncTask
 import android.util.Log
+import com.instacart.library.truetime.TrueTimeRx
+import io.reactivex.schedulers.Schedulers
 import org.json.JSONObject
 import java.io.File
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.Socket
 import java.net.URL
 import java.util.*
 
+import java.lang.Short
+import java.lang.Integer
+
+
 /**
  * Created by klemen on 7.12.2017.
  */
 abstract class SendTask<P, R>: AsyncTask<List<Data>, P, R>() {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
+
 	var Ex: Exception? = null
 	abstract fun copy(): SendTask<P, R>
 	abstract fun address(): String
@@ -23,6 +39,11 @@ abstract class SendTask<P, R>: AsyncTask<List<Data>, P, R>() {
 }
 
 data class Data(val v: Array<out Any>, val time: Long) {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
+
 	override fun toString(): String {
 		return v.joinToString() + ", " + time
 	}
@@ -44,6 +65,10 @@ data class Data(val v: Array<out Any>, val time: Long) {
 }
 
 class SendTask_JSON_HTTP(private val url: URL, private val ofilds: Array<String>)  : SendTask<Void, Int>() {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
 
 	override fun doInBackground(vararg p0: List<Data>?): Int? {
 		try {
@@ -75,9 +100,7 @@ class SendTask_JSON_HTTP(private val url: URL, private val ofilds: Array<String>
 		return 1
 	}
 
-	override fun address(): String {
-		return url.toString()
-	}
+	override fun address() = url.toString()
 
 	override fun copy(): SendTask<Void, Int> {
 		return SendTask_JSON_HTTP(url, ofilds)
@@ -86,10 +109,13 @@ class SendTask_JSON_HTTP(private val url: URL, private val ofilds: Array<String>
 	override fun close() {
 		Log.d("D", "End of sending wiht HTTP/JSON")
 	}
-
 }
 
 class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void>() {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
 
 	private var ipAddress = ""
 	private var port = 0
@@ -142,6 +168,10 @@ class SendTask_Socket(IipAddress: String, Iport: Int = -1) : SendTask<Void, Void
 
 class SendTask_File(val fileName: String?, context: Context?) : SendTask<Void, Void>() {
 
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
+
 	private lateinit var pw: PrintWriter
 
 	init {
@@ -182,3 +212,93 @@ class SendTask_File(val fileName: String?, context: Context?) : SendTask<Void, V
 		pw.close()
 	}
 }
+
+abstract class BgTaskRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioFormat: Int, bufferSizeInBytes: Int): AsyncTask<String, Void, Int>() {
+
+	companion object {
+		const val BUFFER_SIZE = 2048
+		const val TIMER_INTERVAL = 120
+		val LOG_TAG = this::class.simpleName
+	}
+
+	protected var rec = AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes)
+	protected var payloadSize = 0
+	protected var file: RandomAccessFile? = null
+	protected var buffer = ByteArray(bufferSizeInBytes)
+
+	private fun formatBits(format: Int) = when (format) {
+		AudioFormat.ENCODING_PCM_8BIT -> 8
+		AudioFormat.ENCODING_PCM_16BIT -> 16
+		AudioFormat.ENCODING_PCM_FLOAT -> 32
+		else -> 0
+	}
+
+	private fun prepareFile(fileName: String) {
+		val formatBits = formatBits(rec.audioFormat)
+		file = RandomAccessFile(fileName, "rw")
+		payloadSize = 0
+		file?.setLength(0)
+		file?.writeBytes("RIFF")
+		file?.writeInt(0)
+		file?.writeBytes("WAVE")
+		file?.writeBytes("fmt ")
+		file?.writeInt(Integer.reverseBytes(formatBits))
+		file?.writeShort(Short.reverseBytes(1).toInt())
+		file?.writeShort(Short.reverseBytes(rec.channelCount.toShort()).toInt())
+		file?.writeInt(Integer.reverseBytes(rec.sampleRate))
+		file?.writeInt(Integer.reverseBytes(rec.sampleRate * rec.channelCount * formatBits / 8))
+		file?.writeShort(Short.reverseBytes((rec.channelCount * formatBits / 8).toShort()).toInt())
+		file?.writeShort(Short.reverseBytes(formatBits.toShort()).toInt())
+		file?.writeBytes("data")
+		file?.writeInt(0)
+	}
+
+	protected fun startRecording(fileName: String) {
+		prepareFile(fileName)
+		rec.startRecording()
+	}
+
+	protected fun stopRecording() {
+		rec.stop()
+		rec.release()
+		file?.seek(4)
+		file?.writeInt(Integer.reverseBytes(36 + payloadSize))
+		file?.seek(40)
+		file?.writeInt(Integer.reverseBytes(payloadSize))
+		file?.close()
+	}
+
+}
+
+class BgTaskRecorderFile(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioFormat: Int, bufferSizeInBytes: Int): BgTaskRecorder(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSizeInBytes) {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
+
+	override fun doInBackground(vararg params: String?): Int {
+		startRecording(params[0].toString())
+		while (!isCancelled) {
+			val numOfBytes = rec.read(buffer, 0, buffer.size)
+			if (numOfBytes > 0) {
+				file?.write(buffer, 0, numOfBytes)
+				payloadSize += numOfBytes
+			}
+		}
+		stopRecording()
+		return payloadSize
+	}
+}
+
+class InitTime : AsyncTask<String, Int, Int>() {
+
+	companion object {
+		val LOG_TAG = this::class.simpleName
+	}
+
+	override fun doInBackground(vararg params: String?): Int {
+		TrueTimeRx.build().initializeRx(if (params.isNotEmpty()) params[0] else "time.google.com").subscribeOn(Schedulers.io()).subscribe()
+		return 0
+	}
+}
+
