@@ -19,6 +19,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -33,9 +35,11 @@ import kotlinx.android.synthetic.main.frag_recorder.*
 import kotlinx.android.synthetic.main.frag_recorder.view.*
 import kotlinx.android.synthetic.main.frag_sensors.view.*
 import kotlinx.android.synthetic.main.frag_time.view.*
+import java.lang.Math.abs
 import java.net.URL
+import java.lang.Exception
+import java.net.InetAddress
 import java.util.*
-import kotlin.math.abs
 
 class FragmentPlaceholder : Fragment() {
 
@@ -68,6 +72,9 @@ class FragmentPlaceholder : Fragment() {
 
 class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
+	var minute = 0
+	var houre = 0
+
 	@SuppressLint("ValidFragment")
 	constructor(time_out: TextView) : this() {
 		this.time_out = time_out
@@ -88,6 +95,8 @@ class FragmentTimePicker() : DialogFragment(), TimePickerDialog.OnTimeSetListene
 	}
 
 	override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+		this.minute = minute
+		this.houre = hourOfDay
 		val time_out_s = "%2d:%2d".format(hourOfDay, minute)
 		Toast.makeText(activity, time_out_s, Toast.LENGTH_SHORT).show()
 		time_out!!.text = time_out_s
@@ -324,6 +333,8 @@ class FragmentRecorder : Fragment() {
 	private var canRecord = false
 	private var rec: BgTaskRecorder? = null
 	private lateinit var uic: View
+	private var timeFrag: FragmentTimePicker? = null
+	private var recEvent: Handler? = null
 
 	private fun setupPermissions() {
 		if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -335,8 +346,8 @@ class FragmentRecorder : Fragment() {
 
 	private fun pressBtnSetTime() {
 		if (uic.frecTbtnSetTime.isChecked) {
-			val frag = FragmentTimePicker(frecTwRecordTime)
-			frag.show(fragmentManager, "Time Picker")
+			timeFrag = FragmentTimePicker(frecTwRecordTime)
+			timeFrag?.show(fragmentManager, "Time Picker")
 		} else {
 			frecTwRecordTime.text = getString(R.string.time_init_text)
 		}
@@ -345,11 +356,17 @@ class FragmentRecorder : Fragment() {
 	private fun pressBtnRecord() {
 		if (uic.frecTbtnRecord.isChecked) {
 			rec = createRecorder()
-			Handler().postDelayed({
+			val timeDelay = timeSourceDelay()
+			recEvent = Handler()
+			recEvent!!.postDelayed({
 				rec?.execute("%s/%s.wav".format(context!!.filesDir.absolutePath, uic.frecEtFileName.text.toString()))
-			}, timeSourceDelay())
+				uic.lblRecOutInfo.text = resources.getString(R.string.lbl_record)
+			}, timeDelay)
+			Toast.makeText(activity, "Time delay: %d ms".format(timeDelay), Toast.LENGTH_LONG).show()
 		} else {
 			rec?.cancel(true)
+			recEvent?.removeCallbacksAndMessages(null)
+			uic.lblRecOutInfo.text = resources.getString(R.string.lbl_empty)
 		}
 	}
 
@@ -364,7 +381,6 @@ class FragmentRecorder : Fragment() {
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		Log.d(LOG_TAG, "DELA MAN")
 		when(requestCode) {
 			REQUEST_RECORD_AUDIO_PERMISSION -> canRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED
 		}
@@ -380,8 +396,8 @@ class FragmentRecorder : Fragment() {
 	private fun timeSourceDelay(): Long {
 		if (!uic.frecTbtnSetTime.isChecked) return 0L
 		val cal = Calendar.getInstance()
-		cal.set(Calendar.HOUR_OF_DAY, 0)
-		cal.set(Calendar.MINUTE, 0)
+		cal.set(Calendar.HOUR_OF_DAY, timeFrag?.houre!!)
+		cal.set(Calendar.MINUTE, timeFrag?.minute!!)
 		cal.set(Calendar.MILLISECOND, 0)
 		return abs(cal.time.time - getCurrTime().time)
 	}
@@ -465,7 +481,7 @@ class FragmentRecorder : Fragment() {
 		}
 	}
 
-	private fun audioChanelsProp(): Int {
+	private fun audioChannelsProp(): Int {
 		val arr = resources.getStringArray(R.array.audioChannels)
 		return when (uic.frecSbChannels.selectedItem.toString()) {
 			arr[1] -> AudioFormat.CHANNEL_IN_STEREO
@@ -473,7 +489,7 @@ class FragmentRecorder : Fragment() {
 		}
 	}
 
-	private fun audioChanelsNum(): Int {
+	private fun audioChannelsNus(): Int {
 		val arr = resources.getStringArray(R.array.audioChannels)
 		return when (uic.frecSbChannels.selectedItem.toString()) {
 			arr[0] -> 1
@@ -484,13 +500,13 @@ class FragmentRecorder : Fragment() {
 
 	private fun createRecorder(): BgTaskRecorder {
 		val sampleRate = uic.frecSbSampleRate.selectedItem.toString().toInt()
-		val channels = audioChanelsNum()
-		val channelsProp = audioChanelsProp()
+		val channels = audioChannelsNus()
+		val channelsProp = audioChannelsProp()
 		val mBitsPersample = audioFormatBits()
 		val audioFormat = audioFormat()
 		val mBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelsProp, audioFormat)
-		val rec = BgTaskRecorderFile(soundSource(), sampleRate, audioChanelsProp(), audioFormat, mBufferSize)
-		return rec
+		val orec = BgTaskRecorderFile(soundSource(), sampleRate, audioChannelsProp(), audioFormat, mBufferSize)
+		return orec
 	}
 }
 
@@ -510,14 +526,27 @@ class FragmentTimeSync : Fragment() {
 		cal.time = t2
 		uic.ftimEtServerTime.text = getDateStr(cal)
 		cal.time = Date(abs(t1.time - t2.time))
-		Log.d(LOG_TAG, "%d, %s".format(cal.time.time, getDateStr(cal)))
 		uic.ftimEtTimeDiff.text = getDateStr(cal)
 	}
 
-	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+	override fun onCreateView(inflater:LayoutInflater, container:ViewGroup?, savedInstanceState: Bundle?): View? {
 		uic = inflater.inflate(R.layout.frag_time, container, false)
 		InitTime().execute(uic.ftimEtNTPServer.text.toString())
 		uic.ftimBtnGetTime.setOnClickListener{ pressStnGetTime() }
+		uic.ftimEtNTPServer.addTextChangedListener(object : TextWatcher{
+			override fun afterTextChanged(p0: Editable?) {
+				try {
+					InetAddress.getByName(p0.toString()).isReachable(2000)
+					InitTime().execute(p0.toString())
+				} catch (error: Exception) {
+					Log.d("SensorAndorid", error.toString())
+				}
+			}
+
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+		})
 		return uic
 	}
 
